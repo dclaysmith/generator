@@ -2,8 +2,11 @@
 class DataObjectTemplate extends dclaysmith\Generator\Template {
 
 	public $table;
+	public $tables;
 
 	public function generate() {
+
+		$sObject	= str_replace(' ','',ucwords(str_replace('_',' ',str_replace('tbl_c_','',$this->table->name))));
 
 		$aOutput[] = <<<EOF
 
@@ -44,18 +47,114 @@ abstract class Account_Base extends CDataObject {
 	 * Variables
 	 */
 EOF;
+		// add in a variable for each column
+		foreach ($this->table->columns() as $column) {
+			$aOutput[] = "\tprotected \$_".str_replace(' ','',ucwords(str_replace('_',' ',str_replace('tbl_c_','',$column->name)))).";";
+		}
+
+		// add in a variable to store relationship
+		foreach ($this->tables as $table) {
+			foreach ($table->columns() as $column) {
+				if ($column->name == str_replace("tbl_p_", "", $this->table->name)) {
+					$aOutput[] = "donkey";
+				}
+			}
+		}
+
+		$aOutput[] = <<<EOF
+
+
+	// PROPERTIES
+EOF;
 
 		foreach ($this->table->columns() as $column) {
-			$aOutput[] = "protected $_".$column->name.";";
+			switch ($column->name) {
+				case "id":
+				case "date_entered":
+				case "date_modified":
+				case "ts":
+					continue;
+					break;
+				default:
+					$sMethodName 	= str_replace(' ','',ucwords(str_replace('_',' ',str_replace('tbl_c_','',$column->name))));
+					$sVariableName 	= str_replace(' ','',ucwords(str_replace('_',' ',str_replace('tbl_c_','',$column->name))));
+
+		$aOutput[] = <<<EOF
+	/**
+	 * Property get/set{$sMethodName}()
+	 */
+	public function get{$sMethodName}() {
+EOF;
+					if ($column->type == "tinyint") {
+		$aOutput[] = <<<EOF
+		return (\$this->{$sVariableName}) ? 1 : 0;
+EOF;
+					} else {
+		$aOutput[] = <<<EOF
+		return \$this->_{$sVariableName};
+EOF;
+					}
+		$aOutput[] = <<<EOF
+	}
+	public function set{$sMethodName}(\$value) {
+EOF;
+		switch ($column->type) {
+			case "double":
+				$aOutput[] = <<<EOF
+		if (!is_numeric(\$value)) {
+			throw new exception('Non-numeric value provided for set{$sMethodName}.');	
+		}					
+EOF;
+				break;
+			case "int":
+			case "bigint":
+				$aOutput[] = <<<EOF
+		if (!is_int(\$value)) {
+			throw new exception('Non-integer value provided for set{$sMethodName}.');	
+		}	
+EOF;
+				break;
+			case "tinyint":
+				$aOutput[] = <<<EOF
+		if (!(\$value === true || \$value === false)) {
+			throw new exception('Non-boolean value provided for set{$sMethodName}.');	
+		}		
+EOF;
+				break;
+			case "datetime":
+				$aOutput[] = <<<EOF
+		if (!CValidation::isValidDatetime(\$value)) {
+			throw new exception('Non-date value provided for set{$sMethodName}.');	
+		}		
+EOF;
+				break;
+			case "varchar":	
+				$aOutput[] = <<<EOF
+		if (strlen(stripslashes(\$value)) > {$column->length}) {
+			throw new exception('The value provided for set{$sMethodName} exceeds the allowed length of {$column->length}.');				
+		} 			
+EOF;
+				break;
+		}
+		
+		$aOutput[] = <<<EOF
+
+		if (\$this->_{$sVariableName} != \$value) {
+			if (!\$this->getIsNew()) \$this->_aChanged[] = "{$sMethodName}";
+			\$this->_isDirty = true;
+		}
+		\$this->_{$sVariableName} = \$value;
+		return true;
+	}
+EOF;
+					break;
+			}
 		}
 
 		$aOutput[] = <<<EOF
 }
 ?>
 EOF;
-
-		echo implode("\n",$aOutput);
-		die;
 
 		return implode("\n",$aOutput);
 	}

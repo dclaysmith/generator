@@ -31,12 +31,13 @@ class MySql implements IConnection {
 
 		$dbh = new \PDO("mysql:host=".$this->host.";dbname=information_schema", $this->username, $this->password);
 
-		$stmt = $dbh->prepare("SELECT `TABLE_NAME` FROM `COLUMNS` WHERE `COLUMNS`.`TABLE_SCHEMA` = ?");
+		$stmt = $dbh->prepare("SELECT `TABLE_NAME` FROM `TABLES` WHERE `TABLE_SCHEMA` = ?");
 
 		$tables = array();
 
 		if ($stmt->execute(array($this->database))) {
 			while ($row = $stmt->fetch()) {
+				echo $row['TABLE_NAME']."\n";
 				$tables[] = new \dclaysmith\Generator\Database\Table($this, $row['TABLE_NAME']);
 			}
 		}
@@ -50,30 +51,33 @@ class MySql implements IConnection {
 
 		$dbh = new \PDO("mysql:host=".$this->host.";dbname=".$this->database, $this->username, $this->password);
 
-		$q = $dbh->prepare("DESCRIBE `tbl_p_account`");
-		$q->execute();
-		$table_fields = $q->fetchAll(\PDO::FETCH_COLUMN);
-p($table_fields);
-		foreach ($data as $row) {
-			
-			$column 				= new \dclaysmith\Generator\Database\Column($this);
-			$column->name 			= $row["Field"];
-			$column->nullable 		= ($row["Null"] == "YES") ? true : false;
-			$column->primaryKey 	= ($row["Key"] == "PRI") ? true : false;
-			$column->default 		= $row["Default"];
-			$column->autoIncrement	= ($row['Extra'] == "auto_increment") ? true : false;
+		$stmt = $dbh->prepare("DESCRIBE `".$table_name."`");
 
-			if (preg_match($pattern,$type,$matches)) {
-				if (count($matches) == 2) {
-					$column->type 	= $matches[1];
-					$column->length = 0;
-				} else if (count($matches) == 4) {
-					$column->type   = $matches[1];
-					$column->length = $matches[3];
+		$columns = array();
+
+		if ($stmt->execute(array($table_name))) {
+
+			while ($row = $stmt->fetch()) {
+
+				$column 				= new \dclaysmith\Generator\Database\Column($this);
+				$column->name 			= $row["Field"];
+				$column->nullable 		= ($row["Null"] == "YES") ? true : false;
+				$column->primaryKey 	= ($row["Key"] == "PRI") ? true : false;
+				$column->default 		= $row["Default"];
+				$column->autoIncrement 	= ($row['Extra'] == "auto_increment") ? true : false;
+
+				if (preg_match($pattern, $row['Type'], $matches)) {
+					if (count($matches) == 2) {
+						$column->type 	= $matches[1];
+						$column->length = 0;
+					} else if (count($matches) == 4) {
+						$column->type   = $matches[1];
+						$column->length = $matches[3];
+					}
+					$matches = null;
 				}
-				$matches = null;
+				$columns[] = $column;				
 			}
-			$columns[] = $column;
 		}
 
 		return $columns;

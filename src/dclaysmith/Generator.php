@@ -29,15 +29,20 @@ class Generator {
 
 		require_once($sPath);
 
+		$template 	= new $class_name;		
+
 		if ($template_data["repeat"] == "table") {
 
-			$template 	= new $class_name;		
-
 			foreach ($this->database->tables() as $table) {
+
 				$template->table 	= $table;	
+				$template->tables  	= $this->database->tables();
 				$output 			= $template->generate();		
-				$filename			= $template_data["file_name"]("donkey",$table->name);	
-				echo $output."\n";
+				$filename			= $config["output_dir"].DIRECTORY_SEPARATOR.$template_data["file_name"]($table->name);	
+				
+				$handle 			= (file_exists($filename)) ? fopen($filename, "w+") : fopen($filename, "x+");
+				fwrite($handle, $output);
+				fclose($handle);
 			}
 
 		} else {

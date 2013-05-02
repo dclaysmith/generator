@@ -11,8 +11,7 @@
         }
     ],
     "require": {
-        "php": ">=5.3",
-        "rain/raintpl": ">=3.0.0"
+        "php": ">=5.3"
     },
     "minimum-stability": "dev",
     "autoload": {

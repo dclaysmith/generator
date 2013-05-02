@@ -24,25 +24,44 @@ $config = array(
 	            		"description"	=> "Provide data access to each table",
 	            		"repeat"		=> "table",
 	            		"destination"	=> "do/",
-	            		"file_name"		=> function ($database_name, $table_name) { return "dataobject".$table_name.".php"; },
+	            		"file_name"		=> function ($table_name) { 
+	            								
+	            								switch (substr($table_name,0,6)) {
+	            									case "tbl_p_":
+	            										$prefix = "boP";
+	            										break;
+	            									case "tbl_c_":
+	            										$prefix = "boC";
+	            										break;
+	            									default:
+	            										$prefix	= "";
+	            										break;
+	            								}
+
+	            								$sObjectName = str_replace(array('tbl_c_','tbl_p_'),'',$table_name);
+	            								$sObjectName = str_replace(' ','',ucwords(str_replace('_',' ',$sObjectName)));
+	            								$sObjectName = str_replace('-','_',$sObjectName);
+
+	            								return $prefix.$sObjectName.".php";
+	            							},
 	            		"overwrite"		=> true
 	            	),
-	            	array(
-	            		"template_name" => "ListTemplate",
-	            		"description"	=> "Generate a List View",
-	            		"repeat"		=> "table",
-	            		"destination"	=> "",
-	            		"file_name"		=> function ($database_name, $table_name) { return "list_".$table_name.".php"; },
-	            		"overwrite"		=> false
-	            	),
-	            	array(
-	            		"template_name" => "UpdateTemplate",
-	            		"description"	=> "Generate an update View",
-	            		"repeat"		=> "table",
-	            		"destination"	=> "",
-	            		"file_name"		=> function ($database_name, $table_name) { return "update_".$table_name.".php"; },
-	            		"overwrite"		=> false
-	            	)
+	            	// array(
+	            	// 	"template_name" => "ListTemplate",
+	            	// 	"description"	=> "Generate a List View",
+	            	// 	"repeat"		=> "table",
+	            	// 	"destination"	=> "",
+	            	// 	"file_name"		=> function ($table_name) { return "list_".$table_name.".php"; },
+	            	// 	"overwrite"		=> false
+	            	// ),
+	            	// array(
+	            	// 	"template_name" => "UpdateTemplate",
+	            	// 	"description"	=> "Generate an update View",
+	            	// 	"repeat"		=> "table",
+	            	// 	"destination"	=> "",
+	            	// 	"file_name"		=> function ($table_name) { return "update_".$table_name.".php"; },
+	            	// 	"overwrite"		=> false
+	            	// )
 	            )
 	       );
 
