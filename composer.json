@@ -1,0 +1,22 @@
+{
+    "name": "dclaysmith/generator",
+    "type": "library",
+    "description": "A code generator based on mysql.",
+    "homepage":"https://github.com/dclaysmith/generator",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "D Clay Smith",
+            "email": "dclaysmith@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3"
+    },
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-0": { 
+            "Generator": "src/" 
+        }
+    }
+}
