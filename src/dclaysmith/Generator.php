@@ -17,19 +17,19 @@ class Generator {
 
 		$this->database = new Generator\Database($this->connection);
 
-		array_walk($templates, array($this,'processTemplate'), $this->config);
+		array_walk($templates, array($this,'processTemplate'));
 
 	}
 	
-	private function processTemplate($template_data, $key, $config) {
+	private function processTemplate($template_data, $key) {
 		
-		$class_name	= $template_data["template_name"];
+		$templateName	= $template_data["template_name"];
 
-		$sPath 		= $config["template_dir"].DIRECTORY_SEPARATOR.$class_name.".php";
+		$sPath 			= $this->config["template_dir"].DIRECTORY_SEPARATOR.$templateName.".php";
 
 		require_once($sPath);
 
-		$template 	= new $class_name;		
+		$template 		= new $templateName;		
 
 		if ($template_data["repeat"] == "table") {
 
@@ -38,19 +38,27 @@ class Generator {
 				$template->table 	= $table;	
 				$template->tables  	= $this->database->tables();
 				$output 			= $template->generate();		
-				$filename			= $config["output_dir"].DIRECTORY_SEPARATOR.$template_data["output_dir"].DIRECTORY_SEPARATOR.$template_data["file_name"]($table->name);	
+				$filename			= $this->config["output_dir"].DIRECTORY_SEPARATOR.$template_data["output_dir"].DIRECTORY_SEPARATOR.$template_data["file_name"]($table->name);	
 
 				$handle 			= (file_exists($filename)) ? fopen($filename, "w+") : fopen($filename, "x+");
 				fwrite($handle, $output);
 				fclose($handle);
-				
+
 				echo ".";
 			}
 
 		} else {
 
+			$template->tables  	= $this->database->tables();
 			$output 			= $template->generate();		
-			$filename			= $template_data["file_name"]("donkey");	
+
+			$filename			= $this->config["output_dir"].DIRECTORY_SEPARATOR.$template_data["output_dir"].DIRECTORY_SEPARATOR.$template_data["file_name"]();	
+
+			$handle 			= (file_exists($filename)) ? fopen($filename, "w+") : fopen($filename, "x+");
+			fwrite($handle, $output);
+			fclose($handle);
+
+			echo ".";
 		}
 
 
