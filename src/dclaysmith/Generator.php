@@ -17,11 +17,11 @@ class Generator {
 
 		$this->database = new Generator\Database($this->connection);
 
-		array_walk($templates, array($this,'process_template'), $this->config);
+		array_walk($templates, array($this,'processTemplate'), $this->config);
 
 	}
 	
-	private function process_template($template_data, $key, $config) {
+	private function processTemplate($template_data, $key, $config) {
 		
 		$class_name	= $template_data["template_name"];
 
@@ -38,18 +38,22 @@ class Generator {
 				$template->table 	= $table;	
 				$template->tables  	= $this->database->tables();
 				$output 			= $template->generate();		
-				$filename			= $config["output_dir"].DIRECTORY_SEPARATOR.$template_data["file_name"]($table->name);	
-				
+				$filename			= $config["output_dir"].DIRECTORY_SEPARATOR.$template_data["output_dir"].DIRECTORY_SEPARATOR.$template_data["file_name"]($table->name);	
+
 				$handle 			= (file_exists($filename)) ? fopen($filename, "w+") : fopen($filename, "x+");
 				fwrite($handle, $output);
 				fclose($handle);
+if ($table->name == "tbl_p_account") {
+	echo $output;
+	die;
+}
+				echo ".";
 			}
 
 		} else {
 
 			$output 			= $template->generate();		
 			$filename			= $template_data["file_name"]("donkey");	
-			echo $filename."\n";
 		}
 
 

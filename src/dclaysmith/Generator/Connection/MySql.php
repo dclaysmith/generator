@@ -37,7 +37,6 @@ class MySql implements IConnection {
 
 		if ($stmt->execute(array($this->database))) {
 			while ($row = $stmt->fetch()) {
-				echo $row['TABLE_NAME']."\n";
 				$tables[] = new \dclaysmith\Generator\Database\Table($this, $row['TABLE_NAME']);
 			}
 		}

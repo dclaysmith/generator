@@ -1,0 +1,8 @@
+OX=OXEN
+MEDIA=Media
+VIDEO=Videos
+TEST=Tests
+INBOX=Inboxes
+OUTBOX=Outboxes
+PHOTO=Photos
+STATUS=Statuses
