@@ -43,10 +43,7 @@ class Generator {
 				$handle 			= (file_exists($filename)) ? fopen($filename, "w+") : fopen($filename, "x+");
 				fwrite($handle, $output);
 				fclose($handle);
-if ($table->name == "tbl_p_account") {
-	echo $output;
-	die;
-}
+				
 				echo ".";
 			}
 
