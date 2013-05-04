@@ -17,21 +17,24 @@ class MySql implements IConnection {
 	public $database;
 
 	public function __construct($host="", $username="", $password="", $database="") {
+
 		$this->host 	= $host;
 		$this->username = $username;
 		$this->password = $password;
 		$this->database = $database;
+
 	}
 
 	public function getConnection() {
+
+		return new \PDO("mysql:host=".$this->host.";dbname=information_schema", $this->username, $this->password);
 
 	}
 
 	public function getTables() {
 
-		$dbh = new \PDO("mysql:host=".$this->host.";dbname=information_schema", $this->username, $this->password);
-
-		$stmt = $dbh->prepare("SELECT `TABLE_NAME` FROM `TABLES` WHERE `TABLE_SCHEMA` = ?");
+		$dbh 	= $this->getConnection();
+		$stmt 	= $dbh->prepare("SELECT `TABLE_NAME` FROM `TABLES` WHERE `TABLE_SCHEMA` = ?");
 
 		$tables = array();
 

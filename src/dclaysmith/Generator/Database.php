@@ -17,18 +17,17 @@ class Database {
 	public function __construct($connection) {
 
 		$this->connection = $connection;
+
 	}
 
 	public function tables() {
 
-		if (!$this->tables) {
-
-			// retrieve a list of tables from the connection
-			$this->tables = $this->connection->getTables();
-		}
+		if (!$this->tables) $this->tables = $this->connection->getTables();
 
 		return $this->tables;
+
 	}
+
 }
 
 ?>

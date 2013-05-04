@@ -1,0 +1,39 @@
+{
+    "name": "CRUD Application Builder",
+    "description": "Will generate a simple CRUD application for your database.",
+    "homepage":"https://github.com/dclaysmith/generator/example",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "D Clay Smith",
+            "email": "dclaysmith@gmail.com"
+        }
+    ],
+    "debug": true,
+    "connections": [
+    	{
+    		"host": "127.0.0.1",
+    		"user": "root",
+    		"password": "",
+    		"database": "crm_app"
+    	}
+    ],
+    "template_directory": "./templates",
+    "output_directory": "../example/destination",
+    "templates": [
+    	{
+    		"name": "DataObjectTemplate",
+    		"description": "Build a data-access layer for the database.",
+    		"repeat": "table",
+    		"output_directory": "/models/do",
+    		"overwrite": true
+    	},    	
+    	{
+    		"name": "ListTemplate",
+    		"description": "Generate a list of the items in a table.",
+    		"repeat": "table",
+    		"output_directory": "/controllers",
+    		"overwrite": true
+    	},
+    ]
+}

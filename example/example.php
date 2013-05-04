@@ -14,7 +14,6 @@ $connection->database 					= "crm_app";
 
 // config
 $config = array(
-	            "cache_dir"     			=> "./cache",
 	            "template_dir"  			=> "./templates",
 	            "output_dir"				=> "./destination",
 	            "debug"         			=> true,
