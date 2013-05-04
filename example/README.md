@@ -4,5 +4,5 @@
 <p>How to install Generator</p>
 
 <code>
-php path/to/Generator.php
+php generator
 </code>
