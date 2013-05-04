@@ -4,5 +4,5 @@
 <p>How to install Generator</p>
 
 <code>
-asdfasdF
+php path/to/Generator.php
 </code>
