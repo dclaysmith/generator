@@ -4,6 +4,18 @@ class DataObjectTemplate extends dclaysmith\Generator\Template {
 	public $table;
 	public $tables;
 
+	//tbl_p_product
+	public function filename($tableName) {
+		// boPProduct.php
+		if (substr($tableName,0,6) == "tbl_p_") {
+			return "boP".str_replace("_","",$tableName);
+			return "List".pluralize(str_replace("_","",$tableName)).".php";
+		} else {
+
+		}
+		return $tableName;
+	}
+
 	public function generate() {
 
 		$sTemplateVariable = str_replace(array('tbl_c_','tbl_p_'),'',$this->table->name);
@@ -58,7 +70,6 @@ EOF;
 		foreach ($this->tables as $table) {
 			foreach ($table->columns() as $column) {
 				if ($column->name == str_replace("tbl_p_", "", $this->table->name)."_id") {
-
 					$sTableClass = str_replace(array('tbl_c_','tbl_p_'),'',$table->name);
 					$sTableClass = ucwords(str_replace(array("-","_"),array("- ","_ "),$sTableClass));
 					$sTableClass = ucwords(str_replace(array("- ","_ "),array("-","_"),$sTableClass));

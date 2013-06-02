@@ -12,6 +12,7 @@
     "debug": true,
     "connections": [
     	{
+    		"name": "app",
     		"host": "127.0.0.1",
     		"user": "root",
     		"password": "",
@@ -24,6 +25,7 @@
     	{
     		"name": "DataObjectTemplate",
     		"description": "Build a data-access layer for the database.",
+    		"connection": "app",
     		"repeat": "table",
     		"output_directory": "/models/do",
     		"overwrite": true
@@ -34,6 +36,13 @@
     		"repeat": "table",
     		"output_directory": "/controllers",
     		"overwrite": true
+    	},    	
+    	{
+    		"name": "BusinessObjectTemplate",
+    		"description": "Create stub for business object.",
+    		"repeat": "table",
+    		"output_directory": "/models/bo",
+    		"overwrite": false
     	},
     ]
 }

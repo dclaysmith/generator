@@ -10,10 +10,11 @@
 Namespace dclaysmith;
 
 $generator = new Generator();
+$generator->run();
 
 class Generator {
 
-	public function run($sConfigJson) {
+	public static function run($sConfigJson) {
 
 		$templates 	= $this->config["templates"];
 
@@ -66,6 +67,5 @@ class Generator {
 	}
 
 }
-
 
 ?>
