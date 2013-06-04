@@ -1,8 +1,7 @@
-<h1>How to Run</h1>
+How to Run
+==========
 
-<h2>Install Generator</h2>
-<p>How to install Generator</p>
+Install Generator
+-----------------
 
-<code>
-php generator
-</code>
+How to install Generator

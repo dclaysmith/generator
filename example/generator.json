@@ -19,30 +19,30 @@
     		"database": "crm_app"
     	}
     ],
-    "template_directory": "./templates",
-    "output_directory": "../example/destination",
+    "templateDirectory": "./templates",
+    "outputDirectory": "../example/destination",
     "templates": [
     	{
     		"name": "DataObjectTemplate",
     		"description": "Build a data-access layer for the database.",
     		"connection": "app",
     		"repeat": "table",
-    		"output_directory": "/models/do",
+    		"outputDirectory": "/models/do",
     		"overwrite": true
     	},    	
     	{
     		"name": "ListTemplate",
     		"description": "Generate a list of the items in a table.",
     		"repeat": "table",
-    		"output_directory": "/controllers",
+    		"outputDirectory": "/controllers",
     		"overwrite": true
     	},    	
     	{
     		"name": "BusinessObjectTemplate",
     		"description": "Create stub for business object.",
     		"repeat": "table",
-    		"output_directory": "/models/bo",
+    		"outputDirectory": "/models/bo",
     		"overwrite": false
-    	},
+    	}
     ]
 }
