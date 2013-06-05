@@ -59,7 +59,7 @@ class Generator {
 
 			foreach ($template->tables as $table) {
 
-				if (!$output 			= $template->generate($table)) continue;
+				if (!$output = $template->generate($table)) continue;
 				
 				$filename			= $template->filename($table->name);
 				$destination		= $this->config->outputDirectory.$templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$filename;
@@ -68,24 +68,21 @@ class Generator {
 				fwrite($handle, $output);
 				fclose($handle);
 
-				echo ".";
+				echo ". ".$filename."\n";
 			}
 
 		} else {
 
+				if (!$output 		= $template->generate()) continue;
+				
+				$filename			= $template->filename($table->name);
+				$destination		= $this->config->outputDirectory.$templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$filename;
 
+				$handle 			= (file_exists($destination)) ? fopen($destination, "w+") : fopen($destination, "x+");
+				fwrite($handle, $output);
+				fclose($handle);
 
-
-			$template->tables  	= $this->database->tables();
-			$output 			= $template->generate();		
-
-			$filename			= $this->config["output_dir"].DIRECTORY_SEPARATOR.$template_data["output_dir"].DIRECTORY_SEPARATOR.$template_data["file_name"]();	
-
-			$handle 			= (file_exists($filename)) ? fopen($filename, "w+") : fopen($filename, "x+");
-			fwrite($handle, $output);
-			fclose($handle);
-
-			echo ".";
+				echo ". ".$filename."\n";
 		}
 
 	}

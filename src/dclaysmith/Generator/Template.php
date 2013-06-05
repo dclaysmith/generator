@@ -18,5 +18,13 @@ class Template {
 		return $tableName;
 	}
 
+	protected function formatter($value) {
+        static $instance;
+        if (!isset($instance)) {
+            $instance = new Formatter;
+        }
+        $instance->initialize($value);
+        return $instance;		
+	}
 }
 ?>

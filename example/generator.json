@@ -29,20 +29,6 @@
     		"repeat": "table",
     		"outputDirectory": "/models/do",
     		"overwrite": true
-    	},    	
-    	{
-    		"name": "ListTemplate",
-    		"description": "Generate a list of the items in a table.",
-    		"repeat": "table",
-    		"outputDirectory": "/controllers",
-    		"overwrite": true
-    	},    	
-    	{
-    		"name": "BusinessObjectTemplate",
-    		"description": "Create stub for business object.",
-    		"repeat": "table",
-    		"outputDirectory": "/models/bo",
-    		"overwrite": false
     	}
     ]
 }

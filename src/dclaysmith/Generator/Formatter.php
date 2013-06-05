@@ -13,16 +13,24 @@ class Formatter {
 
 	private $value;
 
-	public function __construct($value) {
-		$this->value 	= $value;
+	public function __construct() {
+	}
+
+	public function initialize($value) {
+		$this->value = $value;
 	}
 
 	public function toString() {
-		return $this->value;
+		return trim($this->value);
 	}
 
 	public function replace($search, $replace) {
 		$this->value = str_replace($search,$replace,$this->value);
+		return $this;
+	}
+
+	public function strip($search) {
+		$this->value = str_replace($search,"",$this->value);
 		return $this;
 	}
 
@@ -102,16 +110,13 @@ class Formatter {
 				$aPluralForms[$aValues[0]] = $aValues[1];
 			}
 		}
-
-		###############################################################
-		# first see if an exception applies
-		###############################################################
 		foreach ($aPluralForms as $key => $value) {
 			if (strtolower($key) == strtolower($string)) {
 				$this->value = trim($value);
 				return $this;
 			}
 		}
+
 
 		###############################################################
 		# if we are talking about a 2 letter word, just add an s
@@ -158,6 +163,7 @@ class Formatter {
 		# consonant then another letter. use regex for this.
 		###############################################################
 		$pattern = "/(.*?[^aeiou])(\w{1})$/i";
+		$matches = array();
 		if (preg_match($pattern,$string,$matches)) {
 			switch ($matches[2]) {
 				case("s"):
@@ -173,6 +179,11 @@ class Formatter {
 					return $this;
 					break;
 			}
+		}
+
+		if (preg_match("/[xs]$/",$string)) {
+			$this->value = $string . "es";
+			return $this;
 		}
 
 		###############################################################
