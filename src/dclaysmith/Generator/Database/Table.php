@@ -14,6 +14,7 @@ class Table {
 	public $connection;
 	public $name;
 	public $columns;
+	public $rows;
 
 	public function __construct($connection, $name, $columns = null) {
 
@@ -29,6 +30,14 @@ class Table {
 		return $this->columns;
 
 	}
+
+	public function rows() {
+
+		if (!$this->rows) $this->rows = $this->connection->rows($this->name);
+
+		return $this->rows;
+
+	}	
 
 }
 

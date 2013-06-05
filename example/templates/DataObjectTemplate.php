@@ -32,7 +32,11 @@ class DataObjectTemplate extends Template {
 	}
 
 	private function toEngineClassName($tableName) {
-		return $this->toClassName($tableName)."_Eng";
+		if (false !== strpos($tableName,"tbl_p_")) {
+			return $this->toProperName($tableName)."_Eng";
+		} else {
+			return "c".$this->toProperName($tableName)."_Eng";
+		}	
 	}	
 
 	private function getTable() {
@@ -96,7 +100,7 @@ EOF;
 		foreach ($this->tables as $table) {
 			foreach ($table->columns() as $column) {
 				$tableShort = $this->formatter($this->getTable()->name)->strip(array('tbl_c_','tbl_p_'))->toString();				
-				if ($column->name == $tableShort."_id") { // email_account_id == "email_account"."_id"
+				if ($column->name == $tableShort."_id") {
 					$aOutput[] = "\tprotected \$_col".$this->toPluralProperName($table->name).";";
 				}
 			}
@@ -198,26 +202,24 @@ EOF;
 			}
 		}
 
-		foreach ($this->getTable()->columns() as $column) {
-			foreach ($this->tables as $table) {
-				if ($column->name == str_replace("tbl_p_", "", $table->name)."_id") {
 
-					$sColumnClass = str_replace(array('tbl_c_','tbl_p_'),'',$column->name);
-					$sColumnClass = str_replace('_id','',$sColumnClass);
-					$sColumnClass = ucwords(str_replace(array("-","_"),array("- ","_ "),$sColumnClass));
-					$sColumnClass = ucwords(str_replace(array("- ","_ "),array("-","_"),$sColumnClass));
-					$sColumnClass = str_replace(' ','',ucwords(str_replace('_',' ',$sColumnClass)));
-					$sColumnClass = str_replace('-','_',$sColumnClass);
+		foreach ($this->tables as $table) {
+			foreach ($table->columns() as $column) {
+				$tableShort = $this->formatter($this->getTable()->name)->strip(array('tbl_c_','tbl_p_'))->toString();				
+				if ($column->name == $tableShort."_id") {
+
+					// /$sTableClass = $this->toPluralProperName($table->name);
 
 					$aOutput[] = <<<EOF
 
-	public function get{$sColumnClass}() {
-		if (\$this->_o{$sColumnClass} == null && \$this->get{$sColumnClass}Id() > 0) {			
-			if (!\$this->_o{$sColumnClass} = {$sColumnClass}_Eng::get(\$this->get{$sColumnClass}Id(),false)) {
-				throw new exception('Unable to retrieve the {$sColumnClass}.');			
+	public function get{$this->toPluralProperName($table->name)}() {
+		if (\$this->_col{$this->toPluralProperName($table->name)} == null) {
+			\$aParams = array(array("","{$column->name}","=",\$this->getId()));
+			if (!\$this->_col{$this->toPluralProperName($table->name)} = {$this->toProperName($table->name)}_Eng::search(\$aParams)) {
+				throw new exception('Unable to retrieve the _col{$this->toPluralProperName($table->name)}.');
 			}
 		}
-		return \$this->_o{$sColumnClass};
+		return \$this->_col{$this->toPluralProperName($table->name)};
 	}
 EOF;
 
@@ -225,31 +227,23 @@ EOF;
 			}
 		}	
 
-		foreach ($this->tables as $table) {
-			foreach ($table->columns() as $column) {
-				if ($column->name == str_replace("tbl_p_", "", $table->name)."_id") {
 
-					$sTableClass = str_replace(array('tbl_c_','tbl_p_'),'',$table->name);
-					$sTableClass = str_replace('_id','',$sTableClass);
-					$sTableClass = ucwords(str_replace(array("-","_"),array("- ","_ "),$sTableClass));
-					$sTableClass = ucwords(str_replace(array("- ","_ "),array("-","_"),$sTableClass));
-					$sTableClass = str_replace(' ','',ucwords(str_replace('_',' ',$sTableClass)));
-					$sTableClass = str_replace('-','_',$sTableClass);
+		foreach ($this->getTable()->columns() as $column) {
+			foreach ($this->tables as $table) {
+				$tableShort = $this->formatter($table->name)->strip(array('tbl_c_','tbl_p_'))->toString();	
+				if ($column->name == $tableShort."_id") {
 
-
-					$aOutput[] = "\tprotected \$_col".$templateClass.$this->pluralize($sTableClass).";";
-
+					$sColumnClass = $this->toProperName($column->name);
 
 					$aOutput[] = <<<EOF
 
-	public function get{$templateClass}{$this->pluralize($sTableClass)}() {
-		if (\$this->_col{$templateClass}{$this->pluralize($sTableClass)} == null) {
-			\$aParams = array(array("","{$column->name}","=",\$this->getId()));
-			if (!\$this->_col{$templateClass}{$this->pluralize($sTableClass)} = {$sTableClass}_Eng::search(\$aParams)) {
-				throw new exception('Unable to retrieve the _col{$templateClass}{$this->pluralize($sTableClass)}.');
+	public function get{$sColumnClass}() {
+		if (\$this->_o{$sColumnClass} == null && \$this->get{$sColumnClass}Id() > 0) {			
+			if (!\$this->_o{$sColumnClass} = {$this->toEngineClassName($column->name)}::get(\$this->get{$sColumnClass}Id(),false)) {
+				throw new exception('Unable to retrieve the {$sColumnClass}.');			
 			}
 		}
-		return \$this->_col{$templateClass}{$this->pluralize($sTableClass)};
+		return \$this->_o{$sColumnClass};
 	}
 EOF;
 
@@ -271,27 +265,22 @@ EOF;
 				default:
 					if (!$column->nullable) {
 
-						$sColumnClass = ucwords(str_replace(array("-","_"),array("- ","_ "),$column->name));
-						$sColumnClass = ucwords(str_replace(array("- ","_ "),array("-","_"),$sColumnClass));
-						$sColumnClass = str_replace(' ','',ucwords(str_replace('_',' ',$sColumnClass)));
-						$sColumnClass = str_replace('-','_',$sColumnClass);
-
 						switch ($column->type) {
 							case "int": case "bigint":
-								$aOutput[] = "\t\tif (!is_int(\$this->get{$sColumnClass}())) {";
+								$aOutput[] = "\t\tif (!is_int(\$this->get{$this->toProperName($column->name)}())) {";
 								break;
 							case "tinyint":
-								$aOutput[] = "\t\tif (!(\$this->get{$sColumnClass}() == true || \$this->get{$sColumnClass}() == false)) {";		
+								$aOutput[] = "\t\tif (!(\$this->get{$this->toProperName($column->name)}() == true || \$this->get{$this->toProperName($column->name)}() == false)) {";		
 								break;
 							case "datetime":
-								$aOutput[] = "\t\tif (!CValidation::isValidDatetime(\$this->get{$sColumnClass}())) {";
+								$aOutput[] = "\t\tif (!CValidation::isValidDatetime(\$this->get{$this->toProperName($column->name)}())) {";
 								break;
 							default:
-								$aOutput[] = "\t\tif (strlen(\$this->get{$sColumnClass}()) < 1) {";		
+								$aOutput[] = "\t\tif (strlen(\$this->get{$this->toProperName($column->name)}()) < 1) {";		
 								break;
 						}
-						
-						$sLabel = ucwords(str_replace('_',' ',$column->name));
+
+						$sLabel = $this->formatter($column->name)->replace("_"," ")->toTitle()->toString();
 
 						$aOutput[] = "\t\t\t\$aNullValues[] = \"{$sLabel}\";";
 						$aOutput[] = "\t\t}";
@@ -314,7 +303,7 @@ EOF;
 				case "id": case "ts":
 					break;
 				default:	
-					$key = str_replace(' ','',ucwords(str_replace('_',' ',str_replace('tbl_c_','',$column->name))));						
+					$key = $this->formatter($column->name)->replace("_"," ")->toTitle()->strip(' ')->toString();
 					$aFields[$key] = $column->name;
 					break;
 			}
@@ -334,9 +323,9 @@ EOF;
 
         foreach ($aFields as $variable => $field) {
         	if ($field == "uuid") {
-        		$aOutput[] = "\t\t\$statement->bindParam(\":{$field}\",'\$sUuid');";
+        		$aOutput[] = "\t\t\$statement->bindParam(\":{$field}\",\$sUuid);";
         	} else {
-        		$aOutput[] = "\t\t\$statement->bindParam(\":{$field}\",'\$this->_".$variable."');";
+        		$aOutput[] = "\t\t\$statement->bindParam(\":{$field}\",\$this->_".$variable.");";
         	}
         }
 
@@ -368,28 +357,22 @@ EOF;
 					break;
 				default:
 					if (!$column->nullable) {
-
-						$sColumnClass = ucwords(str_replace(array("-","_"),array("- ","_ "),$column->name));
-						$sColumnClass = ucwords(str_replace(array("- ","_ "),array("-","_"),$sColumnClass));
-						$sColumnClass = str_replace(' ','',ucwords(str_replace('_',' ',$sColumnClass)));
-						$sColumnClass = str_replace('-','_',$sColumnClass);
-
 						switch ($column->type) {
 							case "int": case "bigint":
-								$aOutput[] = "\t\tif (!is_int(\$this->get{$sColumnClass}())) {";
+								$aOutput[] = "\t\tif (!is_int(\$this->get{$this->toProperName($column->name)}())) {";
 								break;
 							case "tinyint":
-								$aOutput[] = "\t\tif (!(\$this->get{$sColumnClass}() == true || \$this->get{$sColumnClass}() == false)) {";		
+								$aOutput[] = "\t\tif (!(\$this->get{$this->toProperName($column->name)}() == true || \$this->get{$this->toProperName($column->name)}() == false)) {";		
 								break;
 							case "datetime":
-								$aOutput[] = "\t\tif (!CValidation::isValidDatetime(\$this->get{$sColumnClass}())) {";
+								$aOutput[] = "\t\tif (!CValidation::isValidDatetime(\$this->get{$this->toProperName($column->name)}())) {";
 								break;
 							default:
-								$aOutput[] = "\t\tif (strlen(\$this->get{$sColumnClass}()) < 1) {";		
+								$aOutput[] = "\t\tif (strlen(\$this->get{$this->toProperName($column->name)}()) < 1) {";		
 								break;
 						}
 						
-						$sLabel = ucwords(str_replace('_',' ',$column->name));
+						$sLabel = $this->formatter($column->name)->replace("_"," ")->toTitle()->toString();
 
 						$aOutput[] = "\t\t\t\$aNullValues[] = \"{$sLabel}\";";
 						$aOutput[] = "\t\t}";
@@ -410,13 +393,11 @@ EOF;
 				case "id": case "ts":
 					break;
 				default:	
-					$key = str_replace(' ','',ucwords(str_replace('_',' ',str_replace('tbl_c_','',$column->name))));						
+					$key = $this->formatter($column->name)->replace("_"," ")->toTitle()->strip(' ')->toString();				
 					$aFields[$key] = $column->name;
 					break;
 			}
 		}
-
-
 
 		$fields = "`".implode("`,`",$aFields)."`";
 		$values = "':".implode("',':",$aFields)."'";
@@ -462,45 +443,89 @@ EOF;
 	public function delete() {
 
 		if (MEMCACHE_ENABLED) CMemcache::delete("object_{$templateVariable}_".md5(\$this->getId()));
+
 EOF;
 
 		foreach ($this->tables as $table) {
-
+			foreach ($table->columns() as $column) {
+				if ($column->name == $templateVariable."_id") {
+        			$aOutput[] = "\t\t".$this->toEngineClassName($table->name)."::deleteWhere(array(array(\"\",\"{$templateVariable}_id\",\"=\",\$this->getId())));";
+				}
+			}
 		}
 
 		$aOutput[] = <<<EOF
 
+		\$aSql = array();
+		\$aSql[] = "DELETE FROM `{$this->getTable()->name}` WHERE id = :id";
+		\$statement = \$this->getDbManager->prepare(implode(" ",\$aSql));
+		\$statement->bindParam(":id",\$this->getId());
 
-<[declare \$sChildEngine = ""]>
-<[\$sTmp = "tbl_c_".format(\$sClassName,"LOWER")]>
-<[foreach \$table in \$cgDatabase.tables(3|\$sTmp)]>
-<[\$sChildEngine = format(\$table.name,"r('tbl_c_':''),SENTENCE")]>
-<[\$sChildEngine = format(\$sChildEngine,"r('_':'')")]>
-<[\$sChildEngine = format(\$sChildEngine,"r('-':'_')")]>	
-		\t(3)c<[print(\$sChildEngine)]>_Eng::deleteWhere(array(array("","<[print(\$sAsVariable)]>_id","=",\$this->getId())));\n
-<[next]>
-
-<[foreach \$table in \$cgDatabase.tables(2|\$cgTable.name|"tbl_p_"|"_id")]>
-<[if("tbl_p_" IN \$table.name)]>
-	<[\$sTmp = format(\$table.name,"r('tbl_p_':''),SENTENCE")]>
-	<[\$sTmp = format(\$sTmp,"r('_':'')")]>
-	<[\$sTmp = format(\$sTmp,"r('-':'_')")]>
-		\t(3)<[print(\$sTmp)]>_Eng::deleteWhere(array(array("","<[print(\$sAsVariable)]>_id","=",\$this->getId())));\n	
-<[endif]>
-<[next]>
-
-		\$sql = "DELETE FROM `<[print(\$cgTable.name)]>` WHERE id = ".\$this->getId();
-		if (!\$this->getDbManager()->run_sql(\$sql)) {
+		if (!\$statement->execute()) {
 			return false;
 		} else {
 			return true;
 		}
+	}
+}
+EOF;
 
+		$typeTable = "tbl_t_".$templateVariable;
+		if (array_key_exists($typeTable, $this->tables)) {
+			$table = $this->tables[$typeTable];
+			foreach ($table->rows() as $row) {
+				$aOutput[] = <<<EOF
+/**	
+ * abstract class CLASSNAME_cCHILDCLASS_Base
+ *
+ * @category   Data Object 
+ * @author     D CLAY SMITH
+ * @copyright  2007 D Clay Smith
+ *
+ */
+abstract class CLASSNAME_cCHILDCLASS_Base extends BASECLASS {
+}
+
+EOF;
+
+			}
+		}
+
+		$aOutput[] = <<<EOF
+
+/**
+ * class {$this->toEngineClassName($this->getTable()->name)}
+ *
+ * This class exposes the base functions for manipulating the data object
+ *
+ * NOTE: This file is autogenerated from the {$this->getTable()->name} using
+ * the CG2K6.
+ *
+ * IMPORTANT: This file should not be changed by hand. Any changes
+ * that need to be made should be made to the template file and replicated for
+ * all tables.
+ *
+ * USAGE: This is an abstract class and thus it must be inherited. Create a
+ * or modify business object to use this file. Business Objects are stored in
+ * the "/bo" directory.
+ *
+ * PHP version 5
+ *
+ * @category   Data Object
+ * @author     D CLAY SMITH
+ * @copyright  2007 D Clay Smith
+ */
+class {$this->toEngineClassName($this->getTable()->name)} {
+
+	/**
+	 * Constructor
+	 */
+	function __construct() {
+		throw new FdException('Do not instantiate this class. Use static methods (Class::Method).',null);
 	}
 }
 ?>
 EOF;
-
 
 
 

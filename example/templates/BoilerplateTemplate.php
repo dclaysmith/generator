@@ -6,6 +6,7 @@ class ExampleTemplate extends \dclaysmith\Generator\Template {
 	public function filename($tableName) {
 		/**
 		 * Do something interesting here.
+		 * Convert "tbl_users" to "UserListView.php"
 		 */
 		return $tableName;
 	}

@@ -40,7 +40,7 @@ class MySql implements IConnection {
 
 		if ($stmt->execute(array($this->database))) {
 			while ($row = $stmt->fetch()) {
-				$tables[] = new \dclaysmith\Generator\Database\Table($this, $row['TABLE_NAME']);
+				$tables[$row['TABLE_NAME']] = new \dclaysmith\Generator\Database\Table($this, $row['TABLE_NAME']);
 			}
 		}
 
@@ -86,7 +86,15 @@ class MySql implements IConnection {
 	}
 
 	public function rows($table_name) {
-
+		$dbh = new \PDO("mysql:host=".$this->host.";dbname=".$this->database, $this->username, $this->password);
+		$rows = array();
+		$stmt = $dbh->prepare("SELECT * FROM `".$table_name."`");	
+		if ($stmt->execute(array($table_name))) {
+			while ($row = $stmt->fetch()) {
+				$rows[] = $row;
+			}
+		}	
+		return $rows;
 	}
 }
 
