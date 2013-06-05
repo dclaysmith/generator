@@ -1,22 +1,35 @@
 <?php
 Namespace dclaysmith\Generator\Template;
 
-class DataObjectTemplate extends \dclaysmith\Generator\Template {
+use dclaysmith\Generator\Template;
+use dclaysmith\Generator\Formatter;
+
+class DataObjectTemplate extends Template {
 
 	public $tables;
 
 	//tbl_p_product
 	public function filename($tableName) {
-		// boPProduct.php
-		if (substr($tableName,0,6) == "tbl_p_") {
-			return "boP".str_replace("_","",$tableName);
-			return "List".pluralize(str_replace("_","",$tableName)).".php";
-		} else {
-
-		}
-		return $tableName;
+		$formatter = new Formatter($tableName);
+		return $formatter->replace("tbl_p_","boP")
+						->replace("tbl_c_","boC")
+						->toTitle()
+						->pluralize()
+						->toString();
 	}
 
+	private function toClassName($tableName) {
+		$formatter = new Formatter($tableName);
+		return $formatter->replace("tbl_p_","boP")
+						->replace("tbl_c_","boC")
+						->toTitle()
+						->pluralize()
+						->toString();
+	}
+
+	/**
+	 * generate
+	 */
 	public function generate(\dclaysmith\Generator\Database\Table $table) {
 
 		$sTemplateVariable = str_replace(array('tbl_c_','tbl_p_'),'',$table->name);

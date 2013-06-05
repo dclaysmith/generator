@@ -17,4 +17,25 @@ interface Connection {
 
 }
 
+class Connection {
+
+	protected $connection;
+	protected $tables;
+
+	public function __construct($connection) {
+
+		$this->connection = $connection;
+
+	}
+
+	public function tables() {
+
+		if (!$this->tables) $this->tables = $this->connection->getTables();
+
+		return $this->tables;
+
+	}
+
+}
+
 ?>

@@ -31,7 +31,7 @@ class MySql implements IConnection {
 
 	}
 
-	public function getTables() {
+	public function tables() {
 
 		$dbh 	= $this->getConnection();
 		$stmt 	= $dbh->prepare("SELECT `TABLE_NAME` FROM `TABLES` WHERE `TABLE_SCHEMA` = ?");
@@ -47,7 +47,7 @@ class MySql implements IConnection {
 		return $tables;
 	}
 
-	public function getColumns($table_name) {
+	public function columns($table_name) {
 
 		$pattern = "/^([A-Za-z]+)(\({1}([0-9]+)\){1})?.*?$/";
 
@@ -85,7 +85,7 @@ class MySql implements IConnection {
 		return $columns;
 	}
 
-	public function getRows($table_name) {
+	public function rows($table_name) {
 
 	}
 }

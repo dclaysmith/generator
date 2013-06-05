@@ -30,3 +30,10 @@ function GeneratorAutoloader( $class ){
     }
     
 }
+
+function p($value) {
+    echo "<pre>";
+    echo print_r($value,true);
+    die;
+}
+?>

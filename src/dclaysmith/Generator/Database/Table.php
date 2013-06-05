@@ -24,7 +24,7 @@ class Table {
 
 	public function columns() {
 
-		if (!$this->columns) $this->columns = $this->connection->getColumns($this->name);
+		if (!$this->columns) $this->columns = $this->connection->columns($this->name);
 
 		return $this->columns;
 
