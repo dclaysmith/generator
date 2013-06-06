@@ -29,6 +29,17 @@
     		"repeat": "table",
     		"outputDirectory": "/models/do",
     		"overwrite": true
-    	}
-    ]
+    	},
+        {
+            "name": "BusinessObjectTemplate",
+            "description": "Create stubs for the business objects.",
+            "connection": "app",
+            "repeat": "table",
+            "outputDirectory": "/models/bo",
+            "overwrite": false
+        }        
+    ],
+    "pluralForms": {
+        "ox": "oxen"
+    }
 }

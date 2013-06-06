@@ -64,6 +64,8 @@ class Generator {
 				$filename			= $template->filename($table->name);
 				$destination		= $this->config->outputDirectory.$templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$filename;
 
+				if (file_exists($destination) && !$templateConfig->overwrite) continue;
+
 				$handle 			= (file_exists($destination)) ? fopen($destination, "w+") : fopen($destination, "x+");
 				fwrite($handle, $output);
 				fclose($handle);
@@ -78,6 +80,8 @@ class Generator {
 				$filename			= $template->filename($table->name);
 				$destination		= $this->config->outputDirectory.$templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$filename;
 
+				if (file_exists($destination) && !$templateConfig->overwrite) continue;
+				
 				$handle 			= (file_exists($destination)) ? fopen($destination, "w+") : fopen($destination, "x+");
 				fwrite($handle, $output);
 				fclose($handle);
