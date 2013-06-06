@@ -18,7 +18,7 @@ function GeneratorAutoloader( $class ){
 
     // it will only autoload classes into the generator scope
     if( preg_match('#dclaysmith\\\Generator#', $class ) ){
-
+        
         // transform the namespace in path
         $path = str_replace("\\", DIRECTORY_SEPARATOR, $class );
 

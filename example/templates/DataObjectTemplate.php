@@ -3,6 +3,7 @@ Namespace dclaysmith\Generator\Template;
 
 use dclaysmith\Generator\Template;
 use dclaysmith\Generator\Formatter;
+use dclaysmith\Generator\Database\Table;
 
 class DataObjectTemplate extends Template {
 
@@ -34,9 +35,11 @@ class DataObjectTemplate extends Template {
 	private function toEngineClassName($tableName) {
 		if (false !== strpos($tableName,"tbl_p_")) {
 			return $this->toProperName($tableName)."_Eng";
-		} else {
+		} elseif (false !== strpos($tableName,"tbl_c_")) {
 			return "c".$this->toProperName($tableName)."_Eng";
-		}	
+		} else {
+			throw exception("Invalid table name.");
+		}
 	}	
 
 	private function getTable() {
@@ -46,7 +49,7 @@ class DataObjectTemplate extends Template {
 	/**
 	 * generate
 	 */
-	public function generate(\dclaysmith\Generator\Database\Table $_table) {
+	public function generate(Table $_table) {
 
 		$this->_table = $_table;
 
