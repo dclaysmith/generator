@@ -11,22 +11,26 @@ Namespace dclaysmith\Generator;
 
 class Database {
 
-	protected $connection;
-	protected $tables;
+    protected $connection;
+    protected $tables;
 
-	public function __construct($connection) {
+    public function __construct($connection) {
 
-		$this->connection = $connection;
+        $this->connection = $connection;
 
-	}
+    }
 
-	public function tables() {
+    public function tables() {
 
-		if (!$this->tables) $this->tables = $this->connection->getTables();
+        if (!$this->tables) {
 
-		return $this->tables;
+            $this->tables = $this->connection->getTables();
 
-	}
+        }
+        
+        return $this->tables;
+
+    }
 
 }
 
