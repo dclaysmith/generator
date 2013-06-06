@@ -30,6 +30,7 @@ class Compiler
         $archiveContents[] = "Generator/Database.php";
         $archiveContents[] = "Generator/Formatter.php";
         $archiveContents[] = "Generator/Template.php";
+        $archiveContents[] = "bootstrap.php";
         $archiveContents[] = "Generator.php";
         $archiveContents[] = "Application.php";
 

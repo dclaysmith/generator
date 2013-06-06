@@ -38,7 +38,7 @@ class DataObjectTemplate extends Template {
 		} elseif (false !== strpos($tableName,"tbl_c_")) {
 			return "c".$this->toProperName($tableName)."_Eng";
 		} else {
-			throw exception("Invalid table name.");
+			throw new \exception("Invalid table name: ".$tableName);
 		}
 	}	
 
@@ -242,7 +242,7 @@ EOF;
 
 	public function get{$sColumnClass}() {
 		if (\$this->_o{$sColumnClass} == null && \$this->get{$sColumnClass}Id() > 0) {			
-			if (!\$this->_o{$sColumnClass} = {$this->toEngineClassName($column->name)}::get(\$this->get{$sColumnClass}Id(),false)) {
+			if (!\$this->_o{$sColumnClass} = {$this->toEngineClassName($table->name)}::get(\$this->get{$sColumnClass}Id(),false)) {
 				throw new exception('Unable to retrieve the {$sColumnClass}.');			
 			}
 		}

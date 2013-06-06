@@ -18,15 +18,15 @@ function GeneratorAutoloader( $class ){
 
     // it will only autoload classes into the generator scope
     if( preg_match('#dclaysmith\\\Generator#', $class ) ){
-        
+
         // transform the namespace in path
         $path = str_replace("\\", DIRECTORY_SEPARATOR, $class );
 
         // filepath
-        $abs_path = BASE_DIR . "/src/" . $path . ".php";
+        $path = __DIR__ . DIRECTORY_SEPARATOR . str_replace("dclaysmith/","",$path) . ".php";
 
         // require the file
-        require_once $abs_path;
+        require_once $path;
     }
     
 }
