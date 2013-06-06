@@ -23,6 +23,6 @@ I then run Composer to download any dependencies:
 
 After creating my initial database, I update my generator.json with the database credentials and run Generator:
 
-`generator.phar generate`
+`generator.phar`
 
 Of course database schemas tend to change. If it does, I simply re run the "generate" command. 
