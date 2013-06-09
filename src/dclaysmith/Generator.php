@@ -19,6 +19,11 @@ class Generator
 {
 
     /**
+     * @var boolean
+     */
+    private $debug;
+    
+    /**
      * @var array
      */
     private $connections;
@@ -32,11 +37,6 @@ class Generator
      * @var dclaysmith\Generator\Formatter
      */
     private $formatter;
-
-    /**
-     * @var boolean
-     */
-    private $debug;
 
     /**
      * @var string
