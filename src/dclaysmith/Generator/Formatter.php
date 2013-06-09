@@ -12,38 +12,71 @@ namespace dclaysmith\Generator;
 
 class Formatter 
 {
-
+	/**
+	 * @var string
+	 */
 	private $value;
 
+	/**
+	 * @param $value string
+	 * @return void
+	 */
 	public function initialize($value) {
 		$this->value = $value;
 	}
 
-	public function toString() {
+	/**
+	 * @return string
+	 */
+	public function toString() 
+	{
 		return trim($this->value);
 	}
 
-	public function replace($search, $replace) {
+	/**
+	 * @param $search string
+	 * @param $replace string
+	 * @return Formatter $this
+	 */
+	public function replace($search, $replace) 
+	{
 		$this->value = str_replace($search,$replace,$this->value);
 		return $this;
 	}
 
-	public function strip($search) {
+	/**
+	 * @param $search string
+	 * @return Formatter $this
+	 */
+	public function strip($search)
+	{
 		$this->value = str_replace($search,"",$this->value);
 		return $this;
 	}
 
-	public function toUpper() {
+	/**
+	 * @return Formatter $this
+	 */
+	public function toUpper()
+	{
 		$this->value = strtoupper($this->value);
 		return $this;
 	}
 
-	public function toLower() {
+	/**
+	 * @return Formatter $this
+	 */
+	public function toLower()
+	{
 		$this->value = strtolower($this->value);
 		return $this;
 	}
 
-	public function toTitle() {
+	/**
+	 * @return Formatter $this
+	 */
+	public function toTitle()
+	{
 		$string = $this->value;
 		$len 	= strlen($string);
 		$i 		= 0;
@@ -64,7 +97,11 @@ class Formatter
 		return $this;
 	}
 
-	public function toHungarian() {
+	/**
+	 * @return Formatter $this
+	 */
+	public function toHungarian()
+	{
 		$string = $this->value;
 		$len=strlen($string);
 		$i=0;
@@ -91,7 +128,11 @@ class Formatter
 		return $this;
 	}
 
-	public function pluralize() {
+	/**
+	 * @return Formatter $this
+	 */
+	public function pluralize()
+	{
 
 		$string = $this->value;
 
