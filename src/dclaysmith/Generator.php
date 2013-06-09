@@ -22,6 +22,11 @@ class Generator
 	private $connections;
 
 	/**
+	 * @var dclaysmith\Generator\Formatter
+	 */
+	private $formatter;
+
+	/**
 	 * @var standard object
 	 */
 	private $config;	
@@ -39,16 +44,12 @@ class Generator
 
 		if (json_last_error() != "") die("Error decoding JSON. Error code: ".json_last_error());
 
-		/**
-		 * Validate the configuration file
-		 * (consider Symfony\Component\Config)
-		 */
-		// $this->validateConfig();
+		$this->validateConfig();
 
 	}
 
     /**
-     * @return string $config (json);
+     * @return void
      */
 	public function run() 
 	{
@@ -62,6 +63,9 @@ class Generator
 
 	}
 	
+    /**
+     * @return void
+     */
 	private function processTemplate($templateConfig) 
 	{
 
@@ -113,11 +117,17 @@ class Generator
 
 	}
 
+	/**
+	 * @return void
+	 */
 	private function validateConfig() 
 	{
 
 	}
 
+	/**
+	 * @return dclaysmith\Generator\Connection
+	 */
 	private function getConnection($identifier) 
 	{
 		if (!$this->connections) {
@@ -133,5 +143,12 @@ class Generator
 		return ($this->connections[$identifier]) ? $this->connections[$identifier] : false;
 	}
 
+	/**
+	 * @return dclaysmith\Generator\Formatter
+	 */
+	private function getFormatter()
+	{
+		return $this->formatter;
+	}
 }
 ?>
