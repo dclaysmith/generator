@@ -9,7 +9,10 @@
  */
 Namespace dclaysmith\Generator\Connection;
 
-class MySql implements IConnection {
+use dclaysmith\Generator\Connection;
+
+class MySql extends Connection implements IConnection 
+{
 
 	public $host;
 	public $username;
@@ -31,7 +34,7 @@ class MySql implements IConnection {
 
 	}
 
-	public function tables() {
+	public function getTables() {
 
 		$dbh 	= $this->getConnection();
 		$stmt 	= $dbh->prepare("SELECT `TABLE_NAME` FROM `TABLES` WHERE `TABLE_SCHEMA` = ?");
@@ -47,7 +50,7 @@ class MySql implements IConnection {
 		return $tables;
 	}
 
-	public function columns($table_name) {
+	public function getColumns($table_name) {
 
 		$pattern = "/^([A-Za-z]+)(\({1}([0-9]+)\){1})?.*?$/";
 
@@ -85,7 +88,7 @@ class MySql implements IConnection {
 		return $columns;
 	}
 
-	public function rows($table_name) {
+	public function getRows($table_name) {
 		$dbh = new \PDO("mysql:host=".$this->host.";dbname=".$this->database, $this->username, $this->password);
 		$rows = array();
 		$stmt = $dbh->prepare("SELECT * FROM `".$table_name."`");	

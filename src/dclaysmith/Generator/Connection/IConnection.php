@@ -7,13 +7,15 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-Namespace dclaysmith\Generator\Connection;
 
-interface IConnection {
+namespace dclaysmith\Generator\Connection;
 
-	function tables();
-	function columns($table_name);
-	function rows($table_name);
+interface IConnection 
+{
+
+  function getTables();
+  function getColumns($table_name);
+  function getRows($table_name);
 
 }
 

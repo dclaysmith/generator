@@ -30,7 +30,8 @@ class Formatter
 	 * @param array $pluralForms
 	 * @return void
 	 */
-	public function __construct($pluralForms) {
+	public function __construct($pluralForms) 
+	{
 		$this->setPluralForms($pluralForms);
 	}
 
@@ -38,7 +39,8 @@ class Formatter
 	 * @param array $pluralForms
 	 * @return void
 	 */
-	public function setPluralForms($pluralForms) {
+	public function setPluralForms($pluralForms)
+	{
 		$this->pluralForms = $pluralForms;
 	}
 
@@ -46,7 +48,8 @@ class Formatter
 	 * @param $value string
 	 * @return void
 	 */
-	public function initialize($value) {
+	public function initialize($value)
+	{
 		$this->value = $value;
 	}
 
@@ -164,23 +167,12 @@ class Formatter
 		###############################################################
 		# read the plural form file if we haven't already
 		###############################################################
-		// $aPluralForms = array();
-		// if (count($aPluralForms) == 0) {
-
-		// 	$sFilename	= dirname(__FILE__)."/Library/plural_forms.txt";
-
-		// 	$oHandle 	= fopen($sFilename, "r");
-		// 	while(!feof($oHandle)) {
-		// 		$aValues = split("=",fgets($oHandle));
-		// 		$aPluralForms[$aValues[0]] = $aValues[1];
-		// 	}
-		// }
-		// foreach ($aPluralForms as $key => $value) {
-		// 	if (strtolower($key) == strtolower($string)) {
-		// 		$this->value = trim($value);
-		// 		return $this;
-		// 	}
-		// }
+		foreach ($this->pluralForms as $key => $value) {
+			if (strtolower($key) == strtolower($string)) {
+				$this->value = trim($value);
+				return $this;
+			}
+		}
 
 		###############################################################
 		# if we are talking about a 2 letter word, just add an s

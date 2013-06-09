@@ -15,18 +15,15 @@ namespace dclaysmith;
  */
 class Compiler
 {
-    private $version;
-
     /**
      * Compiles composer into a single phar file
-     *
-     * @throws \RuntimeException
      * @param  string  $pharFile The full path to the file to create
      */
     public function compile($pharFile = 'generator.phar')
     {
 
-        if (file_exists($pharFile)) {
+        if (file_exists($pharFile)) 
+        {
             unlink($pharFile);
         }
 
@@ -45,7 +42,8 @@ class Compiler
 
 	    $phar = new \Phar($pharFile, 0, 'generator.phar');
         $phar->setSignatureAlgorithm(\Phar::SHA1);
-        foreach ($archiveContents as $path) {
+        foreach ($archiveContents as $path) 
+        {
         	$this->addFile($phar, $path);
         }
 
@@ -54,7 +52,8 @@ class Compiler
         unset($phar);
     }
 
-    private function addFile($phar, $file) {
+    private function addFile($phar, $file) 
+    {
         $phar->addFile(__DIR__.DIRECTORY_SEPARATOR.$file, $file);
     }
 

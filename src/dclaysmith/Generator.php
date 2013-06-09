@@ -140,13 +140,13 @@ class Generator
      */
     private function processTemplate($templateConfig) 
     {
-        $templateName           = $templateConfig->name;
-
-        $templatePath           = $this->getTemplateDirectory().DIRECTORY_SEPARATOR.$templateName.".php";     
+        // include the template file
+        $templatePath           = $this->getTemplateDirectory().DIRECTORY_SEPARATOR.$templateConfig->name.".php";     
 
         require_once($templatePath);
 
-        $className              = "dclaysmith\\Generator\\Template\\".$templateName;   
+        // create an instance of the template
+        $className              = "dclaysmith\\Generator\\Template\\".$templateConfig->name;   
 
         $template               = new $className;
 

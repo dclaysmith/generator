@@ -10,7 +10,7 @@
 
 namespace dclaysmith\Generator;
 
-interface Connection 
+interface IConnection 
 {
 
   function getTables();
@@ -19,7 +19,7 @@ interface Connection
 
 }
 
-class Connection 
+abstract class Connection 
 {
 
 	protected $connection;
