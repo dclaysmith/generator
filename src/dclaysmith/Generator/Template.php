@@ -46,10 +46,10 @@ abstract class Template
 }
 
 /**
- * Extendable base class for Database-Specific templates
+ * Extendable base class for Database-based templates
  * @author D Clay Smith <dclaysmith@gmail.com>
  */
-abstract class DatabaseTemplate 
+abstract class DatabaseTemplate extends Template
 {
 
 	/**
@@ -57,13 +57,32 @@ abstract class DatabaseTemplate
 	 */
 	private $tables;
 
+	/**
+	 * @var dclaysmith\Generator\Connection
+	 */
+	private $connection;
+
+	/**
+	 * @return array
+	 */
+	public function getTables()
+	{
+		return $this->$tables;
+	}
+
+	/**
+	 * @return dclaysmith\Generator\Connection
+	 */
+	public function getConnection() {
+		return $this->connection;
+	}
 }
 
 /**
- * Extendable base class for Table-Specific templates
+ * Extendable base class for Table-based templates
  * @author D Clay Smith <dclaysmith@gmail.com>
  */
-abstract class TableTemplate 
+abstract class TableTemplate extends DatabaseTemplate
 {
 
 	/**

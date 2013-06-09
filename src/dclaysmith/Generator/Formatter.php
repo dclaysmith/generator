@@ -10,12 +10,29 @@
 
 namespace dclaysmith\Generator;
 
-class Formatter 
+/**
+ * Provides a chainable method of formatting strings
+ * @author D Clay Smith <dclaysmith@gmail.com>
+ */
+class Formatter
 {
 	/**
 	 * @var string
 	 */
 	private $value;
+
+	/**
+	 * @var array
+	 */
+	private $pluralForms;
+
+	/**
+	 * @param array $pluralForms
+	 * @return void
+	 */
+	public function setPluralForms($pluralForms) {
+		$this->pluralForms = $pluralForms;
+	}
 
 	/**
 	 * @param $value string

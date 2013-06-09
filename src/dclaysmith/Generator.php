@@ -26,9 +26,9 @@ class Generator
 	 */
 	private $config;	
 
-    /**
-     * @param string $config (json);
-     */
+	/**
+	 * @param string $config (json);
+	 */
 	public function __construct($config) 
 	{
 
