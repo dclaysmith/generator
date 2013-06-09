@@ -10,16 +10,32 @@
 
 namespace dclaysmith;
 
-class Generator {
+/**
+ * @author D Clay Smith <dclaysmith@gmail.com>
+ */
+class Generator 
+{
 
-	public $connections = false;
+	/**
+	 * @var array
+	 */
+	private $connections;
 
-	public function __construct($sConfigJson) {
+	/**
+	 * @var standard object
+	 */
+	private $config;	
+
+    /**
+     * @param string $config (json);
+     */
+	public function __construct($config) 
+	{
 
 		/**
 		 * Read the config file
 		 */
-		$this->config = json_decode($sConfigJson);
+		$this->config = json_decode($config);
 
 		if (json_last_error() != "") die("Error decoding JSON. Error code: ".json_last_error());
 
@@ -31,7 +47,11 @@ class Generator {
 
 	}
 
-	public function run() {
+    /**
+     * @return string $config (json);
+     */
+	public function run() 
+	{
 
 		/**
 		 * Loop through the templates
@@ -42,7 +62,8 @@ class Generator {
 
 	}
 	
-	private function processTemplate($templateConfig) {
+	private function processTemplate($templateConfig) 
+	{
 
 		$templateName		= $templateConfig->name;
 
@@ -92,9 +113,13 @@ class Generator {
 
 	}
 
-	private function validateConfig() {}
+	private function validateConfig() 
+	{
 
-	private function getConnection($identifier) {
+	}
+
+	private function getConnection($identifier) 
+	{
 		if (!$this->connections) {
 			$this->connections = array();
 			foreach ($this->config->connections as $connection) {
@@ -109,6 +134,4 @@ class Generator {
 	}
 
 }
-
-
 ?>

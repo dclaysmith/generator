@@ -10,22 +10,72 @@
 
 namespace dclaysmith\Generator;
 
-class Template {
+/**
+ * Extendable base class for all templates
+ * @author D Clay Smith <dclaysmith@gmail.com>
+ */
+abstract class Template 
+{
 
-	public $table;
-	public $tables;
+	/**
+	 * @var dclaysmith\Generator\Formatter
+	 */
+	private $formatter;
 
-	function filename($tableName) {
+	function filename($tableName) 
+	{
 		return $tableName;
 	}
 
-	protected function formatter($value) {
-        static $instance;
-        if (!isset($instance)) {
-            $instance = new Formatter;
+	/**
+	 * @param string $value
+	 * @var dclaysmith\Generator\Formatter
+	 */
+	protected function formatter($value) 
+	{
+        if (!$this->formatter) 
+        {
+            $this->formatter = new Formatter;
         }
-        $instance->initialize($value);
-        return $instance;		
+
+        $this->formatter->initialize($value);
+        
+        return $this->formatter;		
+	}
+}
+
+/**
+ * Extendable base class for Database-Specific templates
+ * @author D Clay Smith <dclaysmith@gmail.com>
+ */
+abstract class DatabaseTemplate 
+{
+
+	/**
+	 * @var array
+	 */
+	private $tables;
+
+}
+
+/**
+ * Extendable base class for Table-Specific templates
+ * @author D Clay Smith <dclaysmith@gmail.com>
+ */
+abstract class TableTemplate 
+{
+
+	/**
+	 * @var dclaysmith\Generator\Database\Table
+	 */
+	private $table;
+
+	/**
+	 * @return dclaysmith\Generator\Database\Table
+	 */
+	public function getTable() 
+	{
+		return $this->table;
 	}
 }
 ?>

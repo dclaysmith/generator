@@ -10,7 +10,8 @@
 
 namespace dclaysmith\Generator;
 
-interface Connection {
+interface Connection 
+{
 
   function getTables();
   function getColumns($table_name);
@@ -18,18 +19,21 @@ interface Connection {
 
 }
 
-class Connection {
+class Connection 
+{
 
 	protected $connection;
 	protected $tables;
 
-	public function __construct($connection) {
+	public function __construct($connection) 
+	{
 
 		$this->connection = $connection;
 
 	}
 
-	public function tables() {
+	public function tables() 
+	{
 
 		if (!$this->tables) $this->tables = $this->connection->getTables();
 

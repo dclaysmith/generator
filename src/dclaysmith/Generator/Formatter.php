@@ -10,12 +10,10 @@
 
 namespace dclaysmith\Generator;
 
-class Formatter {
+class Formatter 
+{
 
 	private $value;
-
-	public function __construct() {
-	}
 
 	public function initialize($value) {
 		$this->value = $value;

@@ -10,20 +10,24 @@
 
 namespace dclaysmith\Generator;
 
-class Database {
+class Database 
+{
 
-    protected $connection;
-    protected $tables;
+    private $connection;
+    private $tables;
 
-    public function __construct($connection) {
+    public function __construct($connection) 
+    {
 
         $this->connection = $connection;
 
     }
 
-    public function tables() {
+    public function tables() 
+    {
 
-        if (!$this->tables) {
+        if (!$this->tables) 
+        {
 
             $this->tables = $this->connection->getTables();
 
