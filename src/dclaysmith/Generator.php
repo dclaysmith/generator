@@ -11,6 +11,7 @@
 namespace dclaysmith;
 
 use dclaysmith\Generator\Connection\MySql;
+use dclaysmith\Generator\Formatter;
 
 /**
  * @author D Clay Smith <dclaysmith@gmail.com>
@@ -103,7 +104,8 @@ class Generator
 
         // connections
         $this->connections = array();
-        foreach ($config->connections as $connection) {
+        foreach ($config->connections as $connection) 
+        {
             $this->connections[$connection->name] = new MySql(
                                                         $connection->host,
                                                         $connection->user,
@@ -113,9 +115,13 @@ class Generator
 
         // templates
         $this->templates = array();
-        foreach ($config->templates as $template) {
+        foreach ($config->templates as $template) 
+        {
             $this->templates[] = $template;
         }
+
+        // formatter
+        $this->formatter = new Formatter((array) $config->pluralForms);
     }
 
     /**
@@ -127,7 +133,6 @@ class Generator
         {
             $this->processTemplate($templateConfig);
         }
-
     }
     
     /**
@@ -135,21 +140,22 @@ class Generator
      */
     private function processTemplate($templateConfig) 
     {
+        $templateName           = $templateConfig->name;
 
-        $templateName       = $templateConfig->name;
-
-        $templatePath       = $this->getTemplateDirectory().DIRECTORY_SEPARATOR.$templateName.".php";
+        $templatePath           = $this->getTemplateDirectory().DIRECTORY_SEPARATOR.$templateName.".php";     
 
         require_once($templatePath);
 
-        $className          = "dclaysmith\\Generator\\Template\\".$templateName;        
+        $className              = "dclaysmith\\Generator\\Template\\".$templateName;   
 
-        $template           = new $className;
+        $template               = new $className;
 
-        $template->tables   = $this->getConnection($templateConfig->connection)->tables();
+        $template->formatter    = $this->getFormatter();
 
-        if ($templateConfig->repeat == "table") {
+        $template->tables       = $this->getConnection($templateConfig->connection)->tables();
 
+        if ($templateConfig->repeat == "table") 
+        {
             foreach ($template->tables as $table) {
 
                 if (!$output = $template->generate($table)) continue;
@@ -165,8 +171,9 @@ class Generator
 
                 echo ". ".$filename."\n";
             }
-
-        } else {
+        } 
+        else 
+        {
 
                 if (!$output        = $template->generate()) continue;
                 

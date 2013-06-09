@@ -8,7 +8,7 @@ use dclaysmith\Generator\Database\Table;
 class DataObjectTemplate extends Template {
 
 	public function filename($tableName) {
-		return $this->formatter($tableName)			// tbl_p_user_table-product
+		return $this->getFormatter($tableName)			// tbl_p_user_table-product
 						->toTitle() 				// Tbl_P_User_Table-Product
 						->replace("Tbl_P_","doP") 	// boPUser_Table-Product
 						->replace("Tbl_C_","doC")	// (apply to child tables as well)
@@ -18,7 +18,7 @@ class DataObjectTemplate extends Template {
 	}
 
 	private function toProperName($base) {
-		return $this->formatter($base)				// tbl_p_user_table-product
+		return $this->getFormatter($base)				// tbl_p_user_table-product
 						->toTitle()					// Tbl_P_User_Table-Product
 						->strip("_Id") 				// (We don't need ID)
 						->strip("Tbl_P_") 			// User_Table-Product
@@ -29,7 +29,7 @@ class DataObjectTemplate extends Template {
 	}
 
 	private function toPluralProperName($base) {
-		return $this->formatter($this->toProperName($base))->pluralize()->toString();
+		return $this->getFormatter($this->toProperName($base))->pluralize()->toString();
 	}
 
 	private function toEngineClassName($tableName) {
@@ -56,7 +56,7 @@ class DataObjectTemplate extends Template {
 		// skip tables that do not begin with tbl_c_ or tbl_p_
 		if ( !preg_match('/^tbl_[pc]_/', $_table->name )) return "";
 
-		$templateVariable 	= $this->formatter($_table->name)->strip(array('tbl_c_','tbl_p_'))->toString();
+		$templateVariable 	= $this->getFormatter($_table->name)->strip(array('tbl_c_','tbl_p_'))->toString();
 		$templateClass 		= $this->toProperName($_table->name);
 
 		$aOutput[] = <<<EOF
@@ -102,7 +102,7 @@ EOF;
 		// add in a variable to store relationship
 		foreach ($this->tables as $table) {
 			foreach ($table->columns() as $column) {
-				$tableShort = $this->formatter($this->getTable()->name)->strip(array('tbl_c_','tbl_p_'))->toString();				
+				$tableShort = $this->getFormatter($this->getTable()->name)->strip(array('tbl_c_','tbl_p_'))->toString();				
 				if ($column->name == $tableShort."_id") {
 					$aOutput[] = "\tprotected \$_col".$this->toPluralProperName($table->name).";";
 				}
@@ -111,7 +111,7 @@ EOF;
 
 		foreach ($this->getTable()->columns as $column) {
 			foreach ($this->tables as $table) {
-				$tableShort = $this->formatter($table->name)->strip(array('tbl_c_','tbl_p_'))->toString();		
+				$tableShort = $this->getFormatter($table->name)->strip(array('tbl_c_','tbl_p_'))->toString();		
 				if ($column->name == $tableShort."_id") {
 					$aOutput[] = "\tprotected \$_o".$this->toProperName($column->name).";";
 				}
@@ -208,7 +208,7 @@ EOF;
 
 		foreach ($this->tables as $table) {
 			foreach ($table->columns() as $column) {
-				$tableShort = $this->formatter($this->getTable()->name)->strip(array('tbl_c_','tbl_p_'))->toString();				
+				$tableShort = $this->getFormatter($this->getTable()->name)->strip(array('tbl_c_','tbl_p_'))->toString();				
 				if ($column->name == $tableShort."_id") {
 
 					// /$sTableClass = $this->toPluralProperName($table->name);
@@ -233,7 +233,7 @@ EOF;
 
 		foreach ($this->getTable()->columns() as $column) {
 			foreach ($this->tables as $table) {
-				$tableShort = $this->formatter($table->name)->strip(array('tbl_c_','tbl_p_'))->toString();	
+				$tableShort = $this->getFormatter($table->name)->strip(array('tbl_c_','tbl_p_'))->toString();	
 				if ($column->name == $tableShort."_id") {
 
 					$sColumnClass = $this->toProperName($column->name);
@@ -283,7 +283,7 @@ EOF;
 								break;
 						}
 
-						$sLabel = $this->formatter($column->name)->replace("_"," ")->toTitle()->toString();
+						$sLabel = $this->getFormatter($column->name)->replace("_"," ")->toTitle()->toString();
 
 						$aOutput[] = "\t\t\t\$aNullValues[] = \"{$sLabel}\";";
 						$aOutput[] = "\t\t}";
@@ -306,7 +306,7 @@ EOF;
 				case "id": case "ts":
 					break;
 				default:	
-					$key = $this->formatter($column->name)->replace("_"," ")->toTitle()->strip(' ')->toString();
+					$key = $this->getFormatter($column->name)->replace("_"," ")->toTitle()->strip(' ')->toString();
 					$aFields[$key] = $column->name;
 					break;
 			}
@@ -375,7 +375,7 @@ EOF;
 								break;
 						}
 						
-						$sLabel = $this->formatter($column->name)->replace("_"," ")->toTitle()->toString();
+						$sLabel = $this->getFormatter($column->name)->replace("_"," ")->toTitle()->toString();
 
 						$aOutput[] = "\t\t\t\$aNullValues[] = \"{$sLabel}\";";
 						$aOutput[] = "\t\t}";
@@ -396,7 +396,7 @@ EOF;
 				case "id": case "ts":
 					break;
 				default:	
-					$key = $this->formatter($column->name)->replace("_"," ")->toTitle()->strip(' ')->toString();				
+					$key = $this->getFormatter($column->name)->replace("_"," ")->toTitle()->strip(' ')->toString();				
 					$aFields[$key] = $column->name;
 					break;
 			}

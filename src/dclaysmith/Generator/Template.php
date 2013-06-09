@@ -21,7 +21,7 @@ abstract class Template
 	/**
 	 * @var dclaysmith\Generator\Formatter
 	 */
-	private $formatter;
+	public $formatter;
 
 	function filename($tableName) 
 	{
@@ -32,15 +32,14 @@ abstract class Template
 	 * @param string $value
 	 * @return dclaysmith\Generator\Formatter
 	 */
-	protected function formatter($value) 
+	protected function getFormatter($value) 
 	{
-		if (!$this->formatter) 
+		if (!$this->formatter)
 		{
-			$this->formatter = new Formatter;
+			throw new \exception("No formatter specified for the template.");
 		}
 
 		$this->formatter->initialize($value);
-
 		return $this->formatter;			
 	}
 }

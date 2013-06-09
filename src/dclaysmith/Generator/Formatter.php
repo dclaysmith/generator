@@ -30,6 +30,14 @@ class Formatter
 	 * @param array $pluralForms
 	 * @return void
 	 */
+	public function __construct($pluralForms) {
+		$this->setPluralForms($pluralForms);
+	}
+
+	/**
+	 * @param array $pluralForms
+	 * @return void
+	 */
 	public function setPluralForms($pluralForms) {
 		$this->pluralForms = $pluralForms;
 	}

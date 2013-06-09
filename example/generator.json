@@ -40,6 +40,12 @@
         }        
     ],
     "pluralForms": {
-        "ox": "oxen"
+        "ox":       "oxen",
+        "media":    "media",
+        "video":    "videos",
+        "test":     "tests",
+        "inbox":    "inboxes",
+        "outbox":   "outboxes",
+        "photo":    "photos"
     }
 }
