@@ -7,8 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-if(!defined("BASE_DIR"))
-    define("BASE_DIR", dirname( dirname(__DIR__) ) );
 
 // register the autoloader
 spl_autoload_register( "GeneratorAutoloader" );
@@ -29,11 +27,5 @@ function GeneratorAutoloader( $class ){
         require_once $path;
     }
     
-}
-
-function p($value) {
-    echo "<pre>";
-    echo print_r($value,true);
-    die;
 }
 ?>

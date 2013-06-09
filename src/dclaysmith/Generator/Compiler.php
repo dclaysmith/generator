@@ -1,4 +1,13 @@
 <?php
+/*
+ * This file is part of Generator.
+ *
+ * (c) D Clay Smith <dclaysmith@gmail.com>
+ * 
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace dclaysmith;
 
 /**
@@ -22,6 +31,7 @@ class Compiler
         }
 
         $archiveContents = array();
+        $archiveContents[] = "bootstrap.php";
         $archiveContents[] = "Generator/Connection/IConnection.php";
         $archiveContents[] = "Generator/Connection/MySql.php";
         $archiveContents[] = "Generator/Database/Column.php";
@@ -30,9 +40,8 @@ class Compiler
         $archiveContents[] = "Generator/Database.php";
         $archiveContents[] = "Generator/Formatter.php";
         $archiveContents[] = "Generator/Template.php";
-        $archiveContents[] = "bootstrap.php";
-        $archiveContents[] = "Generator.php";
-        $archiveContents[] = "Application.php";
+        $archiveContents[] = "Generator/Generator.php";
+        $archiveContents[] = "Generator/Application.php";
 
 	    $phar = new \Phar($pharFile, 0, 'generator.phar');
         $phar->setSignatureAlgorithm(\Phar::SHA1);
@@ -64,7 +73,7 @@ class Compiler
  */
 
 Phar::mapPhar('generator.phar');
-include 'phar://generator.phar/Application.php';
+include 'phar://generator.phar/Generator/Application.php';
 __HALT_COMPILER();
 EOF;
 
