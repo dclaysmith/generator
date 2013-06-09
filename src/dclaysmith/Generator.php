@@ -95,6 +95,12 @@ class Generator
 
         $this->validateConfig($config);
 
+        // debug
+        $this->debug                = $config->debug;
+
+        // templateDirectory
+        $this->templateDirectory    = $config->templateDirectory;
+
         // connections
         $this->connections = array();
         foreach ($config->connections as $connection) {
@@ -108,15 +114,8 @@ class Generator
         // templates
         $this->templates = array();
         foreach ($config->templates as $template) {
-            $this->templates[]      = $template;
+            $this->templates[] = $template;
         }
-
-        // debug
-        $this->debug                = $config->debug;
-
-        // templateDirectory
-        $this->templateDirectory    = $config->templateDirectory;
-
     }
 
     /**
@@ -124,7 +123,6 @@ class Generator
      */
     public function run() 
     {
-
         foreach ($this->getTemplates() as $templateConfig)
         {
             $this->processTemplate($templateConfig);
