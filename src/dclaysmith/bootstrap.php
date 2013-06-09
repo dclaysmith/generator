@@ -15,11 +15,10 @@ spl_autoload_register( "GeneratorAutoloader" );
 function GeneratorAutoloader( $class ){
 
     // it will only autoload classes into the generator scope
-    if( preg_match('#dclaysmith\\\Generator#', $class ) ){
+    if( preg_match('/^dclaysmith/', $class ) ){
 
         // transform the namespace in path
         $path = str_replace("\\", DIRECTORY_SEPARATOR, $class );
-
         // filepath
         $path = __DIR__ . DIRECTORY_SEPARATOR . str_replace("dclaysmith/","",$path) . ".php";
 
