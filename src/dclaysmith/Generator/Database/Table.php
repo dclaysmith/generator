@@ -9,21 +9,24 @@
  */
 Namespace dclaysmith\Generator\Database;
 
-class Table {
+class Table 
+{
 
 	public $connection;
 	public $name;
 	public $columns;
 	public $rows;
 
-	public function __construct($connection, $name, $columns = null) {
+	public function __construct($connection, $name, $columns = null) 
+	{
 
 		$this->connection 	= $connection;
 		$this->name 		= $name;
 	
 	}
 
-	public function columns() {
+	public function getColumns() 
+	{
 
 		if (!$this->columns) $this->columns = $this->connection->columns($this->name);
 
@@ -31,7 +34,8 @@ class Table {
 
 	}
 
-	public function rows() {
+	public function getRows() 
+	{
 
 		if (!$this->rows) $this->rows = $this->connection->rows($this->name);
 

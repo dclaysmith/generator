@@ -10,20 +10,10 @@
 
 namespace dclaysmith\Generator;
 
-interface IConnection 
-{
-
-  function getTables();
-  function getColumns($table_name);
-  function getRows($table_name);
-
-}
-
 abstract class Connection 
 {
 
-	protected $connection;
-	protected $tables;
+	private $tables;
 
 	public function __construct($connection) 
 	{
@@ -32,14 +22,6 @@ abstract class Connection
 
 	}
 
-	public function tables() 
-	{
-
-		if (!$this->tables) $this->tables = $this->connection->getTables();
-
-		return $this->tables;
-
-	}
 
 }
 

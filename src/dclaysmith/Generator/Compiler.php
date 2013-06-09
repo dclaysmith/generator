@@ -33,12 +33,14 @@ class Compiler
         $archiveContents[] = "Generator/Connection/MySql.php";
         $archiveContents[] = "Generator/Database/Column.php";
         $archiveContents[] = "Generator/Database/Table.php";
+        $archiveContents[] = "Generator/Template/DatabaseTemplate.php";
+        $archiveContents[] = "Generator/Template/TableTemplate.php";
         $archiveContents[] = "Generator/Connection.php";
         $archiveContents[] = "Generator/Database.php";
         $archiveContents[] = "Generator/Formatter.php";
         $archiveContents[] = "Generator/Template.php";
-        $archiveContents[] = "Generator/Generator.php";
         $archiveContents[] = "Generator/Application.php";
+        $archiveContents[] = "Generator.php";
 
 	    $phar = new \Phar($pharFile, 0, 'generator.phar');
         $phar->setSignatureAlgorithm(\Phar::SHA1);

@@ -5,7 +5,7 @@ use dclaysmith\Generator\Template;
 use dclaysmith\Generator\Formatter;
 use dclaysmith\Generator\Database\Table;
 
-class DataObjectTemplate extends Template {
+class DataObjectTemplate extends TableTemplate {
 
 	public function filename($tableName) {
 		return $this->getFormatter($tableName)			// tbl_p_user_table-product
@@ -41,10 +41,6 @@ class DataObjectTemplate extends Template {
 			throw new \exception("Invalid table name: ".$tableName);
 		}
 	}	
-
-	private function getTable() {
-		return $this->_table;
-	}
 
 	/**
 	 * generate
@@ -95,7 +91,8 @@ abstract class {$templateClass}_Base extends CDataObject {
 	// VARIABLES
 EOF;
 		// add in a variable for each column
-		foreach ($this->getTable()->columns() as $column) {
+		foreach ($this->getTable()->getColumns() as $column) 
+		{
 			$aOutput[] = "\tprotected \$_".$this->toProperName($column->name).";";
 		}
 

@@ -152,7 +152,7 @@ class Generator
 
         $template->formatter    = $this->getFormatter();
 
-        $template->tables       = $this->getConnection($templateConfig->connection)->tables();
+        $template->tables       = $this->getConnection($templateConfig->connection)->getTables();
 
         if ($templateConfig->repeat == "table") 
         {
