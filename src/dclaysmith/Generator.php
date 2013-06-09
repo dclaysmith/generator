@@ -10,6 +10,8 @@
 
 namespace dclaysmith;
 
+use dclaysmith\Generator\Connection\MySql;
+
 /**
  * @author D Clay Smith <dclaysmith@gmail.com>
  */
@@ -42,9 +44,44 @@ class Generator
     private $templateDirectory;
 
     /**
-     * @var string
-     */      
-    private $outputDirectory;
+     * @return dclaysmith\Generator\Formatter
+     */
+    private function getFormatter()
+    {
+        return $this->formatter;
+    }
+
+    /**
+     * @return array
+     */
+    private function getTemplates()
+    {
+        return $this->templates;
+    }
+
+    /**
+     * @return array
+     */
+    private function getConnections()
+    {
+        return $this->connections;
+    }
+
+    /**
+     * @return dclaysmith\Generator\Connection
+     */
+    private function getConnection($identifier) 
+    {
+        return ($this->connections[$identifier]) ? $this->connections[$identifier] : false;
+    }
+
+    /**
+     * @return string
+     */
+    private function getTemplateDirectory()
+    {
+        return $this->templateDirectory;
+    }
 
     /**
      * @param string $config (json);
@@ -61,7 +98,11 @@ class Generator
         // connections
         $this->connections = array();
         foreach ($config->connections as $connection) {
-            $this->connections[]    = $connection;
+            $this->connections[$connection->name] = new MySql(
+                                                        $connection->host,
+                                                        $connection->user,
+                                                        $connection->password,
+                                                        $connection->database);             
         }
 
         // templates
@@ -76,8 +117,6 @@ class Generator
         // templateDirectory
         $this->templateDirectory    = $config->templateDirectory;
 
-        // outputDirectory
-        $this->outputDirectory      = $config->outputDirectory;
     }
 
     /**
@@ -86,10 +125,8 @@ class Generator
     public function run() 
     {
 
-        /**
-         * Loop through the templates
-         */
-        foreach ($this->getTemplates() as $templateConfig) {
+        foreach ($this->getTemplates() as $templateConfig)
+        {
             $this->processTemplate($templateConfig);
         }
 
@@ -103,7 +140,7 @@ class Generator
 
         $templateName       = $templateConfig->name;
 
-        $templatePath       = $this->config->templateDirectory.DIRECTORY_SEPARATOR.$templateName.".php";
+        $templatePath       = $this->getTemplateDirectory().DIRECTORY_SEPARATOR.$templateName.".php";
 
         require_once($templatePath);
 
@@ -120,7 +157,7 @@ class Generator
                 if (!$output = $template->generate($table)) continue;
                 
                 $filename           = $template->filename($table->name);
-                $destination        = $this->config->outputDirectory.$templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$filename;
+                $destination        = $templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$filename;
 
                 if (file_exists($destination) && !$templateConfig->overwrite) continue;
 
@@ -136,7 +173,7 @@ class Generator
                 if (!$output        = $template->generate()) continue;
                 
                 $filename           = $template->filename($table->name);
-                $destination        = $this->config->outputDirectory.$templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$filename;
+                $destination        = $templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$filename;
 
                 if (file_exists($destination) && !$templateConfig->overwrite) continue;
                 
@@ -157,30 +194,5 @@ class Generator
 
     }
 
-    /**
-     * @return dclaysmith\Generator\Connection
-     */
-    private function getConnection($identifier) 
-    {
-        if (!$this->connections) {
-            $this->connections = array();
-            foreach ($this->config->connections as $connection) {
-                $this->connections[$connection->name] = new \dclaysmith\Generator\Connection\MySql(
-                                                                            $connection->host,
-                                                                            $connection->user,
-                                                                            $connection->password,
-                                                                            $connection->database); 
-            }           
-        }
-        return ($this->connections[$identifier]) ? $this->connections[$identifier] : false;
-    }
-
-    /**
-     * @return dclaysmith\Generator\Formatter
-     */
-    private function getFormatter()
-    {
-        return $this->formatter;
-    }
 }
 ?>

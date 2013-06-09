@@ -1,8 +1,8 @@
 {
-    "name": "CRUD Application Builder",
-    "description": "Will generate a simple CRUD application for your database.",
-    "homepage":"https://github.com/dclaysmith/generator/example",
-    "license": "MIT",
+    "name":             "CRUD Application Builder",
+    "description":      "Will generate a simple CRUD application for your database.",
+    "homepage":         "https://github.com/dclaysmith/generator/example",
+    "license":          "MIT",
     "authors": [
         {
             "name": "D Clay Smith",
@@ -12,31 +12,31 @@
     "debug": true,
     "connections": [
     	{
-    		"name": "app",
-    		"host": "127.0.0.1",
-    		"user": "root",
-    		"password": "",
-    		"database": "crm_app"
+    		"name":               "app",
+    		"host":               "127.0.0.1",
+    		"user":               "root",
+    		"password":           "",
+    		"database":           "crm_app",
+            "type":               "mysql"
     	}
     ],
     "templateDirectory": "./templates",
-    "outputDirectory": "../example/destination",
     "templates": [
     	{
-    		"name": "DataObjectTemplate",
-    		"description": "Build a data-access layer for the database.",
-    		"connection": "app",
-    		"repeat": "table",
-    		"outputDirectory": "/models/do",
-    		"overwrite": true
+            "name":               "DataObjectTemplate",
+            "description":        "Build a data-access layer for the database.",
+            "connection":         "app",
+            "repeat":             "table",
+            "outputDirectory":    "../example/destination/models/do",
+            "overwrite":          true
     	},
         {
-            "name": "BusinessObjectTemplate",
-            "description": "Create stubs for the business objects.",
-            "connection": "app",
-            "repeat": "table",
-            "outputDirectory": "/models/bo",
-            "overwrite": false
+            "name":                 "BusinessObjectTemplate",
+            "description":          "Create stubs for the business objects.",
+            "connection":           "app",
+            "repeat":               "table",
+            "outputDirectory":      "../example/destination/models/bo",
+            "overwrite":            false
         }        
     ],
     "pluralForms": {
