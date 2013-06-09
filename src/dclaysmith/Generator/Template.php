@@ -33,14 +33,14 @@ abstract class Template
 	 */
 	protected function formatter($value) 
 	{
-        if (!$this->formatter) 
-        {
-            $this->formatter = new Formatter;
-        }
+		if (!$this->formatter) 
+		{
+			$this->formatter = new Formatter;
+		}
 
-        $this->formatter->initialize($value);
-        
-        return $this->formatter;		
+		$this->formatter->initialize($value);
+
+		return $this->formatter;			
 	}
 }
 
