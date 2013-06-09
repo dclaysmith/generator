@@ -22,7 +22,7 @@ class Generator
      * @var boolean
      */
     private $debug;
-    
+
     /**
      * @var array
      */
@@ -70,9 +70,9 @@ class Generator
     /**
      * @return dclaysmith\Generator\Connection
      */
-    private function getConnection($identifier) 
+    private function getConnection($name) 
     {
-        return ($this->connections[$identifier]) ? $this->connections[$identifier] : false;
+        return ($this->connections[$name]) ? $this->connections[$name] : false;
     }
 
     /**
