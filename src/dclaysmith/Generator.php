@@ -22,14 +22,29 @@ class Generator
     private $connections;
 
     /**
+     * @var array
+     */
+    private $templates;
+
+    /**
      * @var dclaysmith\Generator\Formatter
      */
     private $formatter;
 
     /**
-     * @var standard object
+     * @var boolean
      */
-    private $config;    
+    private $debug;
+
+    /**
+     * @var string
+     */
+    private $templateDirectory;
+
+    /**
+     * @var string
+     */      
+    private $outputDirectory;
 
     /**
      * @param string $config (json);
@@ -37,15 +52,32 @@ class Generator
     public function __construct($config) 
     {
 
-        /**
-         * Read the config file
-         */
-        $this->config = json_decode($config);
+        $config = json_decode($config);
 
         if (json_last_error() != "") die("Error decoding JSON. Error code: ".json_last_error());
 
-        $this->validateConfig();
+        $this->validateConfig($config);
 
+        // connections
+        $this->connections = array();
+        foreach ($config->connections as $connection) {
+            $this->connections[]    = $connection;
+        }
+
+        // templates
+        $this->templates = array();
+        foreach ($config->templates as $template) {
+            $this->templates[]      = $template;
+        }
+
+        // debug
+        $this->debug                = $config->debug;
+
+        // templateDirectory
+        $this->templateDirectory    = $config->templateDirectory;
+
+        // outputDirectory
+        $this->outputDirectory      = $config->outputDirectory;
     }
 
     /**
@@ -57,7 +89,7 @@ class Generator
         /**
          * Loop through the templates
          */
-        foreach ($this->config->templates as $templateConfig) {
+        foreach ($this->getTemplates() as $templateConfig) {
             $this->processTemplate($templateConfig);
         }
 
