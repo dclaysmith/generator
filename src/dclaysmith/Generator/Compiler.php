@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace dclaysmith;
+namespace dclaysmith\Generator;
 
 /**
  * The Compiler class compiles generator into a phar
@@ -28,19 +28,19 @@ class Compiler
         }
 
         $archiveContents = array();
-        $archiveContents[] = "bootstrap.php";
-        $archiveContents[] = "Generator/Connection/IConnection.php";
-        $archiveContents[] = "Generator/Connection/MySql.php";
-        $archiveContents[] = "Generator/Database/Column.php";
-        $archiveContents[] = "Generator/Database/Table.php";
-        $archiveContents[] = "Generator/Template/DatabaseTemplate.php";
-        $archiveContents[] = "Generator/Template/TableTemplate.php";
-        $archiveContents[] = "Generator/Connection.php";
-        $archiveContents[] = "Generator/Database.php";
-        $archiveContents[] = "Generator/Formatter.php";
-        $archiveContents[] = "Generator/Template.php";
-        $archiveContents[] = "Generator/Application.php";
-        $archiveContents[] = "Generator.php";
+
+        $archiveContents[] = "Connection/IConnection.php";
+        $archiveContents[] = "Connection/MySql.php";
+        $archiveContents[] = "Database/Column.php";
+        $archiveContents[] = "Database/Table.php";
+        $archiveContents[] = "Template/DatabaseTemplate.php";
+        $archiveContents[] = "Template/TableTemplate.php";
+        $archiveContents[] = "Connection.php";
+        $archiveContents[] = "Database.php";
+        $archiveContents[] = "Formatter.php";
+        $archiveContents[] = "Template.php";
+        $archiveContents[] = "Application.php";
+        $archiveContents[] = "../Generator.php";
 
 	    $phar = new \Phar($pharFile, 0, 'generator.phar');
         $phar->setSignatureAlgorithm(\Phar::SHA1);
@@ -74,7 +74,7 @@ class Compiler
  */
 
 Phar::mapPhar('generator.phar');
-include 'phar://generator.phar/Generator/Application.php';
+include 'phar://generator.phar/Application.php';
 __HALT_COMPILER();
 EOF;
 
