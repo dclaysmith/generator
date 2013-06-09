@@ -29,7 +29,7 @@ abstract class Template
 
 	/**
 	 * @param string $value
-	 * @var dclaysmith\Generator\Formatter
+	 * @return dclaysmith\Generator\Formatter
 	 */
 	protected function formatter($value) 
 	{
