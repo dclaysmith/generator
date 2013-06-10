@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of Generator.
+ * This file is part of the dclaysmith namespace.
  *
  * (c) D Clay Smith <dclaysmith@gmail.com>
  * 
@@ -9,13 +9,14 @@
  */
 
 // register the autoloader
-spl_autoload_register( "GeneratorAutoloader" );
+spl_autoload_register( "DCSAutoloader" );
 
 // autoloader
-function GeneratorAutoloader( $class ){
+function DCSAutoloader( $class ){
 
     // it will only autoload classes into the generator scope
-    if( preg_match('/^dclaysmith/', $class ) ){
+    if( preg_match('/^dclaysmith/', $class ) )
+    {
 
         // transform the namespace in path
         $path = str_replace("\\", DIRECTORY_SEPARATOR, $class );

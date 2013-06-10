@@ -10,6 +10,8 @@
 Namespace dclaysmith\Generator\Connection;
 
 use dclaysmith\Generator\Connection;
+use dclaysmith\Generator\Database\Table;
+use dclaysmith\Generator\Database\Column;
 
 class MySql extends Connection implements IConnection 
 {
@@ -43,7 +45,7 @@ class MySql extends Connection implements IConnection
 
 		if ($stmt->execute(array($this->database))) {
 			while ($row = $stmt->fetch()) {
-				$tables[$row['TABLE_NAME']] = new \dclaysmith\Generator\Database\Table($this, $row['TABLE_NAME']);
+				$tables[$row['TABLE_NAME']] = new Table($this, $row['TABLE_NAME']);
 			}
 		}
 
@@ -64,7 +66,7 @@ class MySql extends Connection implements IConnection
 
 			while ($row = $stmt->fetch()) {
 
-				$column 				= new \dclaysmith\Generator\Database\Column($this);
+				$column 				= new Column($this);
 				$column->name 			= $row["Field"];
 				$column->nullable 		= ($row["Null"] == "YES") ? true : false;
 				$column->primaryKey 	= ($row["Key"] == "PRI") ? true : false;

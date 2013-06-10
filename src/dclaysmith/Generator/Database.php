@@ -13,7 +13,14 @@ namespace dclaysmith\Generator;
 class Database 
 {
 
+    /**
+     * @var dclaysmith\Generator\Connection
+     */
     private $connection;
+
+    /**
+     * @var dclaysmith\Generator\array
+     */
     private $tables;
 
     public function __construct($connection) 
