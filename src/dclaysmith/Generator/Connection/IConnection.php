@@ -13,9 +13,20 @@ namespace dclaysmith\Generator\Connection;
 interface IConnection 
 {
 
-  function getTables();
-  function getColumns($table_name);
-  function getRows($table_name);
+	/**
+	 * @return array
+	 */
+	function getTables();
+
+	/**
+	 * @return array
+	 */  
+  	function getColumns($tableName);
+  
+	/**
+	 * @return array
+	 */
+	function getRows($tableName);
 
 }
 

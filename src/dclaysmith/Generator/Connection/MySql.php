@@ -16,11 +16,33 @@ use dclaysmith\Generator\Database\Column;
 class MySql extends Connection implements IConnection 
 {
 
-    public $host;
-    public $username;
-    public $password;
-    public $database;
+    /**
+     * @var string
+     */
+    private $host;
+    
+    /**
+     * @var string
+     */ 
+    private $username;
+    
+    /**
+     * @var string
+     */    
+    private $password;
+    
+    /**
+     * @var string
+     */
+    private $database;
 
+    /**
+     * @param string $host
+     * @param string $username
+     * @param string $password
+     * @param string $database
+     * @return void
+     */
     public function __construct($host="", $username="", $password="", $database="") 
     {
         $this->host     = $host;
@@ -29,11 +51,17 @@ class MySql extends Connection implements IConnection
         $this->database = $database;
     }
 
+    /**
+     * @return \PDO
+     */
     public function getConnection() 
     {
         return new \PDO("mysql:host=".$this->host.";dbname=information_schema", $this->username, $this->password);
     }
 
+    /**
+     * @return array
+     */
     public function getTables() 
     {
         $dbh    = $this->getConnection();
@@ -53,17 +81,17 @@ class MySql extends Connection implements IConnection
         return $tables;
     }
 
-    public function getColumns($table_name)
+    public function getColumns($tableName)
     {
         $pattern = "/^([A-Za-z]+)(\({1}([0-9]+)\){1})?.*?$/";
 
         $dbh = new \PDO("mysql:host=".$this->host.";dbname=".$this->database, $this->username, $this->password);
 
-        $stmt = $dbh->prepare("DESCRIBE `".$table_name."`");
+        $stmt = $dbh->prepare("DESCRIBE ?");
 
         $columns = array();
 
-        if ($stmt->execute(array($table_name))) 
+        if ($stmt->execute(array($tableName))) 
         {
             while ($row = $stmt->fetch()) 
             {
@@ -97,15 +125,15 @@ class MySql extends Connection implements IConnection
         return $columns;
     }
 
-    public function getRows($table_name) 
+    public function getRows($tableName) 
     {
         $dbh = new \PDO("mysql:host=".$this->host.";dbname=".$this->database, $this->username, $this->password);
 
         $rows = array();
         
-        $stmt = $dbh->prepare("SELECT * FROM `".$table_name."`");   
+        $stmt = $dbh->prepare("SELECT * FROM ?");   
         
-        if ($stmt->execute(array($table_name))) 
+        if ($stmt->execute(array($tableName))) 
         {
             while ($row = $stmt->fetch()) 
             {

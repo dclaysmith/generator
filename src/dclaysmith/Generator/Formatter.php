@@ -164,9 +164,7 @@ class Formatter
 
 		$string = $this->value;
 
-		###############################################################
-		# read the plural form file if we haven't already
-		###############################################################
+		// read the plural form file if we haven't already
 		foreach ($this->pluralForms as $key => $value) {
 			if (strtolower($key) == strtolower($string)) {
 				$this->value = trim($value);
@@ -174,24 +172,17 @@ class Formatter
 			}
 		}
 
-		###############################################################
-		# if we are talking about a 2 letter word, just add an s
-		###############################################################
+		// if we are talking about a 2 letter word, just add an s
 		if (strlen($string) < 3) {
 			$this->value = $string;
 			return $this;
 		}
 
-		###############################################################
-		# if there were no exceptions named then apply standard rules
-		###############################################################
-		# check two letter endings
-		###############################################################
+		// if there were no exceptions named then apply standard rules
+		// check two letter endings
 		$sLastTwoCharacters = substr($string, -2);
 		switch ($sLastTwoCharacters) {
-			#######################################################
-			# Where a noun ends in a sibilant sound
-			#######################################################
+			// Where a noun ends in a sibilant sound
 			case "ss":
 			case "sh":
 			case "ch":
@@ -214,10 +205,8 @@ class Formatter
 				break;
 		}
 
-		###############################################################
-		# there are a couple of cases where we are looking for a
-		# consonant then another letter. use regex for this.
-		###############################################################
+		// there are a couple of cases where we are looking for a
+		// consonant then another letter. use regex for this.
 		$pattern = "/(.*?[^aeiou])(\w{1})$/i";
 		$matches = array();
 		if (preg_match($pattern,$string,$matches)) {
@@ -242,9 +231,7 @@ class Formatter
 			return $this;
 		}
 
-		###############################################################
-		# if we got here then i give up, just ad an "s"
-		###############################################################
+		// if we got here then i give up, just ad an "s"
 		$this->value = $string."s";
 		return $this;
 	}
