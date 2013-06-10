@@ -12,6 +12,7 @@ namespace dclaysmith\Generator;
 
 /**
  * The Compiler class compiles generator into a phar
+ * @author D Clay Smith <dclaysmith@gmail.com>
  */
 class Compiler
 {

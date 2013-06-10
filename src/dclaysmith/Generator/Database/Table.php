@@ -19,15 +19,12 @@ class Table
 
 	public function __construct($connection, $name, $columns = null) 
 	{
-
 		$this->connection 	= $connection;
 		$this->name 		= $name;
-	
 	}
 
 	public function getColumns() 
 	{
-
 		if (!$this->columns) $this->columns = $this->connection->columns($this->name);
 
 		return $this->columns;

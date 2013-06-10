@@ -11,10 +11,9 @@ Namespace dclaysmith\Generator\Database;
 
 class Column {
 
-	public function __construct($connection) {
-
+	public function __construct($connection) 
+	{
 		$this->connection 	= $connection;
-
 	}
 
 }

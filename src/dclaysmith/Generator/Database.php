@@ -10,6 +10,10 @@
 
 namespace dclaysmith\Generator;
 
+/**
+ * Metadata for the database defined in a connection
+ * @author D Clay Smith <dclaysmith@gmail.com>
+ */
 class Database 
 {
 
@@ -23,25 +27,26 @@ class Database
      */
     private $tables;
 
+    /**
+     * @param dclaysmith\Generator\Connection
+     */
     public function __construct($connection) 
     {
-
         $this->connection = $connection;
-
     }
 
-    public function tables() 
+    /**
+     * @return array
+     */
+    public function getTables() 
     {
 
         if (!$this->tables) 
         {
-
             $this->tables = $this->connection->getTables();
-
         }
         
         return $this->tables;
-
     }
 
 }

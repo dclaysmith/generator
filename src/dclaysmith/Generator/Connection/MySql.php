@@ -16,91 +16,104 @@ use dclaysmith\Generator\Database\Column;
 class MySql extends Connection implements IConnection 
 {
 
-	public $host;
-	public $username;
-	public $password;
-	public $database;
+    public $host;
+    public $username;
+    public $password;
+    public $database;
 
-	public function __construct($host="", $username="", $password="", $database="") {
+    public function __construct($host="", $username="", $password="", $database="") 
+    {
+        $this->host     = $host;
+        $this->username = $username;
+        $this->password = $password;
+        $this->database = $database;
+    }
 
-		$this->host 	= $host;
-		$this->username = $username;
-		$this->password = $password;
-		$this->database = $database;
+    public function getConnection() 
+    {
+        return new \PDO("mysql:host=".$this->host.";dbname=information_schema", $this->username, $this->password);
+    }
 
-	}
+    public function getTables() 
+    {
+        $dbh    = $this->getConnection();
 
-	public function getConnection() {
+        $stmt   = $dbh->prepare("SELECT `TABLE_NAME` FROM `TABLES` WHERE `TABLE_SCHEMA` = ?");
 
-		return new \PDO("mysql:host=".$this->host.";dbname=information_schema", $this->username, $this->password);
+        $tables = array();
 
-	}
+        if ($stmt->execute(array($this->database))) 
+        {
+            while ($row = $stmt->fetch()) 
+            {
+                $tables[$row['TABLE_NAME']] = new Table($this, $row['TABLE_NAME']);
+            }
+        }
 
-	public function getTables() {
+        return $tables;
+    }
 
-		$dbh 	= $this->getConnection();
-		$stmt 	= $dbh->prepare("SELECT `TABLE_NAME` FROM `TABLES` WHERE `TABLE_SCHEMA` = ?");
+    public function getColumns($table_name)
+    {
+        $pattern = "/^([A-Za-z]+)(\({1}([0-9]+)\){1})?.*?$/";
 
-		$tables = array();
+        $dbh = new \PDO("mysql:host=".$this->host.";dbname=".$this->database, $this->username, $this->password);
 
-		if ($stmt->execute(array($this->database))) {
-			while ($row = $stmt->fetch()) {
-				$tables[$row['TABLE_NAME']] = new Table($this, $row['TABLE_NAME']);
-			}
-		}
+        $stmt = $dbh->prepare("DESCRIBE `".$table_name."`");
 
-		return $tables;
-	}
+        $columns = array();
 
-	public function getColumns($table_name) {
+        if ($stmt->execute(array($table_name))) 
+        {
+            while ($row = $stmt->fetch()) 
+            {
+                $column                 = new Column($this);
+                $column->name           = $row["Field"];
+                $column->nullable       = ($row["Null"] == "YES") ? true : false;
+                $column->primaryKey     = ($row["Key"] == "PRI") ? true : false;
+                $column->default        = $row["Default"];
+                $column->autoIncrement  = ($row['Extra'] == "auto_increment") ? true : false;
 
-		$pattern = "/^([A-Za-z]+)(\({1}([0-9]+)\){1})?.*?$/";
+                if (preg_match($pattern, $row['Type'], $matches)) 
+                {
+                    if (count($matches) == 2) 
+                    {
+                        $column->type   = $matches[1];
+                        $column->length = 0;
+                    } 
+                    else if (count($matches) == 4) 
+                    {
+                        $column->type   = $matches[1];
+                        $column->length = $matches[3];
+                    }
 
-		$dbh = new \PDO("mysql:host=".$this->host.";dbname=".$this->database, $this->username, $this->password);
+                    $matches = null;
+                }
 
-		$stmt = $dbh->prepare("DESCRIBE `".$table_name."`");
+                $columns[] = $column;               
+            }
+        }
 
-		$columns = array();
+        return $columns;
+    }
 
-		if ($stmt->execute(array($table_name))) {
+    public function getRows($table_name) 
+    {
+        $dbh = new \PDO("mysql:host=".$this->host.";dbname=".$this->database, $this->username, $this->password);
 
-			while ($row = $stmt->fetch()) {
-
-				$column 				= new Column($this);
-				$column->name 			= $row["Field"];
-				$column->nullable 		= ($row["Null"] == "YES") ? true : false;
-				$column->primaryKey 	= ($row["Key"] == "PRI") ? true : false;
-				$column->default 		= $row["Default"];
-				$column->autoIncrement 	= ($row['Extra'] == "auto_increment") ? true : false;
-
-				if (preg_match($pattern, $row['Type'], $matches)) {
-					if (count($matches) == 2) {
-						$column->type 	= $matches[1];
-						$column->length = 0;
-					} else if (count($matches) == 4) {
-						$column->type   = $matches[1];
-						$column->length = $matches[3];
-					}
-					$matches = null;
-				}
-				$columns[] = $column;				
-			}
-		}
-
-		return $columns;
-	}
-
-	public function getRows($table_name) {
-		$dbh = new \PDO("mysql:host=".$this->host.";dbname=".$this->database, $this->username, $this->password);
-		$rows = array();
-		$stmt = $dbh->prepare("SELECT * FROM `".$table_name."`");	
-		if ($stmt->execute(array($table_name))) {
-			while ($row = $stmt->fetch()) {
-				$rows[] = $row;
-			}
-		}	
-		return $rows;
-	}
+        $rows = array();
+        
+        $stmt = $dbh->prepare("SELECT * FROM `".$table_name."`");   
+        
+        if ($stmt->execute(array($table_name))) 
+        {
+            while ($row = $stmt->fetch()) 
+            {
+                $rows[] = $row;
+            }
+        }   
+        return $rows;
+    }
 }
 
 ?>
