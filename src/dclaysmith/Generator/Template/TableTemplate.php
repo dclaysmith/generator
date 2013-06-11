@@ -38,9 +38,17 @@ abstract class TableTemplate extends DatabaseTemplate
 	}
 
 	/**
+	 * @return string no-op
+	 */
+	function formatFilename() 
+	{
+		return $this->getTable()->getName();
+	}
+
+	/**
 	 * @return dclaysmith\Generator\Database\Table
 	 */
-	public function getTable() 
+	function getTable() 
 	{
 		return $this->table;
 	}

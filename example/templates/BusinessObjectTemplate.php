@@ -7,7 +7,7 @@ use dclaysmith\Generator\Formatter;
 class BusinessObjectTemplate extends TableTemplate 
 {
 
-	public function filename() 
+	public function formatFilename() 
 	{
 		return $this->getFormatter($this->getTable()->getName())	// tbl_p_user_table-product
 						->toTitle() 								// Tbl_P_User_Table-Product

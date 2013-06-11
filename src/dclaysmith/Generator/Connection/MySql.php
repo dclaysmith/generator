@@ -61,7 +61,9 @@ class MySql extends Connection
      */
     public function getConnection() 
     {
-        return new \PDO("mysql:host=".$this->host.";dbname=information_schema", $this->username, $this->password);
+        return new \PDO("mysql:host=".$this->host.";dbname=information_schema", 
+                        $this->username, 
+                        $this->password);
     }
 
     /**
@@ -96,12 +98,13 @@ class MySql extends Connection
 
         $dbh = new \PDO("mysql:host=".$this->host.";dbname=".$this->database, $this->username, $this->password);
 
-        $stmt = $dbh->prepare("DESCRIBE ?");
+        $stmt       = $dbh->prepare("DESCRIBE `".$tableName."`");
 
         $columns = array();
 
-        if ($stmt->execute(array($tableName))) 
+        if ($stmt->execute()) 
         {
+
             while ($row = $stmt->fetch()) 
             {
                 $column                 = new Column($this);
@@ -130,7 +133,10 @@ class MySql extends Connection
                 $columns[] = $column;               
             }
         }
-
+        else
+        {
+            throw new \exception("Unable to retrieve columns for ".$tableName.": ".print_r($stmt->errorInfo(),true));
+        }
         return $columns;
     }
 
@@ -142,9 +148,9 @@ class MySql extends Connection
     {
         $dbh = new \PDO("mysql:host=".$this->host.";dbname=".$this->database, $this->username, $this->password);
 
-        $rows = array();
+        $rows   = array();
         
-        $stmt = $dbh->prepare("SELECT * FROM ?");   
+        $stmt   = $dbh->prepare("SELECT * FROM ?");   
         
         if ($stmt->execute(array($tableName))) 
         {

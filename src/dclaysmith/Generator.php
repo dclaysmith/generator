@@ -106,11 +106,14 @@ class Generator
         $this->connections = array();
         foreach ($config->connections as $connection) 
         {
-            $this->connections[$connection->name] = new MySql(
-                                                        $connection->host,
-                                                        $connection->user,
-                                                        $connection->password,
-                                                        $connection->database);             
+            if ($connection->type == "mysql") 
+            {
+                $this->connections[$connection->name] = new MySql(
+                                                            $connection->host,
+                                                            $connection->user,
+                                                            $connection->password,
+                                                            $connection->database);
+            }         
         }
 
         // templates
@@ -173,11 +176,11 @@ class Generator
                     continue;
                 }
 
-                $destination        = $templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$template->getFilename();
+                $destination        = $templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$template->formatFilename();
 
                 $this->write($destination, $output, $templateConfig->overwrite);
 
-                echo ". ".$template->getFilename()."\n";
+                echo ". ".$template->formatFilename()."\n";
             }
         } 
         else 
@@ -193,13 +196,11 @@ class Generator
                 continue;  
             } 
             
-            $destination        = $templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$template->getFilename();
-
-            if (file_exists($destination) && !$templateConfig->overwrite) continue;
+            $destination        = $templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$template->formatFilename();
             
             $this->write($destination, $output, $templateConfig->overwrite);
 
-            echo ". ".$template->getFilename()."\n";
+            echo ". ".$template->formatFilename()."\n";
         }
     }
 

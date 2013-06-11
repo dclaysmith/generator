@@ -40,7 +40,7 @@ abstract class DatabaseTemplate extends Template
 		$this->connection = $connection;
 		parent::__construct($formatter);
 	}
-
+	
 	/**
 	 * @return array
 	 */

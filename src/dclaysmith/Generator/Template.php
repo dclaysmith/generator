@@ -33,7 +33,7 @@ abstract class Template
 	/**
 	 * @return string no-op
 	 */
-	function getFilename() 
+	function formatFilename() 
 	{
 		return __CLASS__;
 	}

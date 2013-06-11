@@ -8,26 +8,26 @@ use dclaysmith\Generator\Database\Table;
 class DataObjectTemplate extends TableTemplate 
 {
 
-	public function filename() 
+	public function formatFilename() 
 	{
-		return $this->getFormatter($this->getTable->getName())			// tbl_p_user_table-product
-						->toTitle() 				// Tbl_P_User_Table-Product
-						->replace("Tbl_P_","doP") 	// boPUser_Table-Product
-						->replace("Tbl_C_","doC")	// (apply to child tables as well)
-						->strip("_") 				// doPUserTable-Product
-						->replace("-","_") 			// doPUserTable_Product
-						->toString();				// return string
+		return $this->getFormatter($this->getTable()->getName())	// tbl_p_user_table-product
+						->toTitle() 								// Tbl_P_User_Table-Product
+						->replace("Tbl_P_","doP") 					// boPUser_Table-Product
+						->replace("Tbl_C_","doC")					// (apply to child tables as well)
+						->strip("_") 								// doPUserTable-Product
+						->replace("-","_") 							// doPUserTable_Product
+						->toString();								// return string
 	}
 
 	private function toProperName($base) 
 	{
-		return $this->getFormatter($base)				// tbl_p_user_table-product
-						->toTitle()					// Tbl_P_User_Table-Product
-						->strip("_Id") 				// (We don't need ID)
-						->strip("Tbl_P_") 			// User_Table-Product
-						->strip("Tbl_C_")			// (apply to child tables as well)
-						->strip("_") 				// UserTable-Product
-						->replace("-","_") 			// UserTable_Product
+		return $this->getFormatter($base)							// tbl_p_user_table-product
+						->toTitle()									// Tbl_P_User_Table-Product
+						->strip("_Id") 								// (We don't need ID)
+						->strip("Tbl_P_") 							// User_Table-Product
+						->strip("Tbl_C_")							// (apply to child tables as well)
+						->strip("_") 								// UserTable-Product
+						->replace("-","_") 							// UserTable_Product
 						->toString();				
 	}
 
@@ -38,11 +38,16 @@ class DataObjectTemplate extends TableTemplate
 
 	private function toEngineClassName($tableName) 
 	{
-		if (false !== strpos($tableName,"tbl_p_")) {
+		if (false !== strpos($tableName,"tbl_p_")) 
+		{
 			return $this->toProperName($tableName)."_Eng";
-		} elseif (false !== strpos($tableName,"tbl_c_")) {
+		} 
+		elseif (false !== strpos($tableName,"tbl_c_")) 
+		{
 			return "c".$this->toProperName($tableName)."_Eng";
-		} else {
+		}
+		else
+		{
 			throw new \exception("Invalid table name: ".$tableName);
 		}
 	}	

@@ -10,6 +10,8 @@
 
 namespace dclaysmith\Generator\Database;
 
+use dclaysmith\Generator\Connection;
+
 /**
  * Representation of a single table in a database
  * @author D Clay Smith <dclaysmith@gmail.com>
@@ -42,7 +44,7 @@ class Table
 	 * @param string $name
 	 * @return void
 	 */
-	public function __construct($connection, $name) 
+	public function __construct(Connection $connection, $name) 
 	{
 		$this->connection 	= $connection;
 		$this->name 		= $name;
