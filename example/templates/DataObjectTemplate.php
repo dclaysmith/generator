@@ -5,10 +5,12 @@ use dclaysmith\Generator\Template;
 use dclaysmith\Generator\Formatter;
 use dclaysmith\Generator\Database\Table;
 
-class DataObjectTemplate extends TableTemplate {
+class DataObjectTemplate extends TableTemplate 
+{
 
-	public function filename($tableName) {
-		return $this->getFormatter($tableName)			// tbl_p_user_table-product
+	public function filename() 
+	{
+		return $this->getFormatter($this->getTable->getName())			// tbl_p_user_table-product
 						->toTitle() 				// Tbl_P_User_Table-Product
 						->replace("Tbl_P_","doP") 	// boPUser_Table-Product
 						->replace("Tbl_C_","doC")	// (apply to child tables as well)
@@ -17,7 +19,8 @@ class DataObjectTemplate extends TableTemplate {
 						->toString();				// return string
 	}
 
-	private function toProperName($base) {
+	private function toProperName($base) 
+	{
 		return $this->getFormatter($base)				// tbl_p_user_table-product
 						->toTitle()					// Tbl_P_User_Table-Product
 						->strip("_Id") 				// (We don't need ID)
@@ -28,11 +31,13 @@ class DataObjectTemplate extends TableTemplate {
 						->toString();				
 	}
 
-	private function toPluralProperName($base) {
+	private function toPluralProperName($base) 
+	{
 		return $this->getFormatter($this->toProperName($base))->pluralize()->toString();
 	}
 
-	private function toEngineClassName($tableName) {
+	private function toEngineClassName($tableName) 
+	{
 		if (false !== strpos($tableName,"tbl_p_")) {
 			return $this->toProperName($tableName)."_Eng";
 		} elseif (false !== strpos($tableName,"tbl_c_")) {
@@ -45,15 +50,14 @@ class DataObjectTemplate extends TableTemplate {
 	/**
 	 * generate
 	 */
-	public function generate(Table $_table) {
-
-		$this->_table = $_table;
+	public function generate() 
+	{
 
 		// skip tables that do not begin with tbl_c_ or tbl_p_
-		if ( !preg_match('/^tbl_[pc]_/', $_table->name )) return "";
+		if ( !preg_match('/^tbl_[pc]_/', $this->getTable()->name )) return "";
 
-		$templateVariable 	= $this->getFormatter($_table->name)->strip(array('tbl_c_','tbl_p_'))->toString();
-		$templateClass 		= $this->toProperName($_table->name);
+		$templateVariable 	= $this->getFormatter($this->getTable()->name)->strip(array('tbl_c_','tbl_p_'))->toString();
+		$templateClass 		= $this->toProperName($this->getTable()->name);
 
 		$aOutput[] = <<<EOF
 
@@ -97,8 +101,8 @@ EOF;
 		}
 
 		// add in a variable to store relationship
-		foreach ($this->tables as $table) {
-			foreach ($table->columns() as $column) {
+		foreach ($this->getTables() as $table) {
+			foreach ($table->getColumns() as $column) {
 				$tableShort = $this->getFormatter($this->getTable()->name)->strip(array('tbl_c_','tbl_p_'))->toString();				
 				if ($column->name == $tableShort."_id") {
 					$aOutput[] = "\tprotected \$_col".$this->toPluralProperName($table->name).";";
@@ -107,7 +111,7 @@ EOF;
 		}
 
 		foreach ($this->getTable()->columns as $column) {
-			foreach ($this->tables as $table) {
+			foreach ($this->getTables() as $table) {
 				$tableShort = $this->getFormatter($table->name)->strip(array('tbl_c_','tbl_p_'))->toString();		
 				if ($column->name == $tableShort."_id") {
 					$aOutput[] = "\tprotected \$_o".$this->toProperName($column->name).";";
@@ -203,8 +207,8 @@ EOF;
 		}
 
 
-		foreach ($this->tables as $table) {
-			foreach ($table->columns() as $column) {
+		foreach ($this->getTables() as $table) {
+			foreach ($table->getColumns() as $column) {
 				$tableShort = $this->getFormatter($this->getTable()->name)->strip(array('tbl_c_','tbl_p_'))->toString();				
 				if ($column->name == $tableShort."_id") {
 
@@ -228,8 +232,8 @@ EOF;
 		}	
 
 
-		foreach ($this->getTable()->columns() as $column) {
-			foreach ($this->tables as $table) {
+		foreach ($this->getTable()->getColumns() as $column) {
+			foreach ($this->getTables() as $table) {
 				$tableShort = $this->getFormatter($table->name)->strip(array('tbl_c_','tbl_p_'))->toString();	
 				if ($column->name == $tableShort."_id") {
 
@@ -258,7 +262,7 @@ EOF;
 		// check for null values
 		\$aNullValues = array();
 EOF;
-		foreach ($this->getTable()->columns() as $column) {
+		foreach ($this->getTable()->getColumns() as $column) {
 			switch ($column->name) {
 				case "id": case "ts": case "date_entered": case "date_modified": case "uuid":
 					break;
@@ -298,7 +302,7 @@ EOF;
 		\$sUuid = CFunctions::getUuid('{$templateVariable}');
 EOF;
 		$aFields = array();
-		foreach ($this->getTable()->columns() as $column) {
+		foreach ($this->getTable()->getColumns() as $column) {
 			switch ($column->name) {
 				case "id": case "ts":
 					break;
@@ -351,7 +355,7 @@ EOF;
 		\$aNullValues = array();
 EOF;
 
-		foreach ($this->getTable()->columns() as $column) {
+		foreach ($this->getTable()->getColumns() as $column) {
 			switch ($column->name) {
 				case "id": case "ts": case "date_entered": case "date_modified": case "uuid":
 					break;
@@ -388,7 +392,7 @@ EOF;
 		}
 EOF;
 		$aFields = array();
-		foreach ($this->getTable()->columns() as $column) {
+		foreach ($this->getTable()->getColumns() as $column) {
 			switch ($column->name) {
 				case "id": case "ts":
 					break;
@@ -446,8 +450,8 @@ EOF;
 
 EOF;
 
-		foreach ($this->tables as $table) {
-			foreach ($table->columns() as $column) {
+		foreach ($this->getTables() as $table) {
+			foreach ($table->getColumns() as $column) {
 				if ($column->name == $templateVariable."_id") {
         			$aOutput[] = "\t\t".$this->toEngineClassName($table->name)."::deleteWhere(array(array(\"\",\"{$templateVariable}_id\",\"=\",\$this->getId())));";
 				}
@@ -471,9 +475,10 @@ EOF;
 EOF;
 
 		$typeTable = "tbl_t_".$templateVariable;
-		if (array_key_exists($typeTable, $this->tables)) {
-			$table = $this->tables[$typeTable];
-			foreach ($table->rows() as $row) {
+		if (array_key_exists($typeTable, $this->getTables())) {
+			$tables = $this->getTables();
+			$table = $tables[$typeTable];
+			foreach ($table->getRows() as $row) {
 				$aOutput[] = <<<EOF
 /**	
  * abstract class CLASSNAME_cCHILDCLASS_Base

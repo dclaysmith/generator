@@ -23,11 +23,19 @@ abstract class Template
 	public $formatter;
 
 	/**
+	 * @param dclaysmith\Generator\Formatter
+	 */
+	function __construct(Formatter $formatter)
+	{
+		$this->formatter = $formatter;
+	}
+
+	/**
 	 * @return string no-op
 	 */
-	function filename($tableName) 
+	function getFilename() 
 	{
-		return $tableName;
+		return __CLASS__;
 	}
 
 	/**

@@ -141,54 +141,66 @@ class Generator
     private function processTemplate($templateConfig) 
     {
         // include the template file
-        $templatePath           = $this->getTemplateDirectory().DIRECTORY_SEPARATOR.$templateConfig->name.".php";     
+        $templatePath           = $this->getTemplateDirectory()     .
+                                            DIRECTORY_SEPARATOR     .
+                                            $templateConfig->name   .
+                                            ".php";     
 
         require_once($templatePath);
 
         // create an instance of the template
         $className              = "dclaysmith\\Generator\\Template\\".$templateConfig->name;   
 
-        $template               = new $className;
-
-        $template->formatter    = $this->getFormatter();
-
-        $template->tables       = $this->getConnection($templateConfig->connection)->getTables();
-
         if ($templateConfig->repeat == "table") 
         {
-            foreach ($template->tables as $table) {
+            // retrieve the connections specified for this template
+            $connection = $this->getConnection($templateConfig->connection);
 
-                if (!$output = $template->generate($table)) continue;
-                
-                $filename           = $template->filename($table->name);
-                $destination        = $templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$filename;
+            // loop through the tables for this connection
+            foreach ($connection->getTables() as $table) 
+            {
 
-                if (file_exists($destination) && !$templateConfig->overwrite) continue;
+                // create an instance of the Template
+                $template           = new $className(
+                                            $this->getFormatter(),
+                                            $connection,
+                                            $table                                            
+                                        );
 
-                $handle             = (file_exists($destination)) ? fopen($destination, "w+") : fopen($destination, "x+");
-                fwrite($handle, $output);
-                fclose($handle);
+                // if the output is blank, skip it
+                if (!$output = $template->generate()) 
+                {
+                    continue;
+                }
 
-                echo ". ".$filename."\n";
+                $destination        = $templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$template->getFilename();
+
+                $this->write($destination, $output, $templateConfig->overwrite);
+
+                echo ". ".$template->getFilename()."\n";
             }
         } 
         else 
         {
+            // create an instance of the Template
+            $template               = new $className(
+                                        $this->getFormatter(),
+                                        $connection                                     
+                                    );         
 
-                if (!$output        = $template->generate()) continue;
-                
-                $filename           = $template->filename($table->name);
-                $destination        = $templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$filename;
+            if (!$output = $template->generate())
+            {
+                continue;  
+            } 
+            
+            $destination        = $templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$template->getFilename();
 
-                if (file_exists($destination) && !$templateConfig->overwrite) continue;
-                
-                $handle             = (file_exists($destination)) ? fopen($destination, "w+") : fopen($destination, "x+");
-                fwrite($handle, $output);
-                fclose($handle);
+            if (file_exists($destination) && !$templateConfig->overwrite) continue;
+            
+            $this->write($destination, $output, $templateConfig->overwrite);
 
-                echo ". ".$filename."\n";
+            echo ". ".$template->getFilename()."\n";
         }
-
     }
 
     /**
@@ -199,5 +211,21 @@ class Generator
 
     }
 
+    /**
+     * @param string $destination
+     * @param string $output
+     * @param boolean $overwrite
+     */
+    private function write($destination, $output, $overwrite = false)
+    {
+        if (file_exists($destination) && !$overwrite)
+        {
+            return;
+        }
+
+        $handle             = (file_exists($destination)) ? fopen($destination, "w+") : fopen($destination, "x+");
+        fwrite($handle, $output);
+        fclose($handle);
+    }
 }
 ?>

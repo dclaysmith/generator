@@ -12,6 +12,9 @@
 namespace dclaysmith\Generator\Template;
 
 use dclaysmith\Generator\Template\DatabaseTemplate;
+use dclaysmith\Generator\Formatter;
+use dclaysmith\Generator\Connection;
+use dclaysmith\Generator\Database\Table;
 
 /**
  * Extendable base class for Table-based templates
@@ -24,6 +27,15 @@ abstract class TableTemplate extends DatabaseTemplate
 	 * @var dclaysmith\Generator\Database\Table
 	 */
 	private $table;
+
+	/**
+	 * @param dclaysmith\Generator\Formatter
+	 */
+	function __construct(Formatter $formatter, Connection $connection, Table $table)
+	{
+		$this->table = $table;
+		parent::__construct($formatter, $connection);
+	}
 
 	/**
 	 * @return dclaysmith\Generator\Database\Table

@@ -4,57 +4,56 @@ Namespace dclaysmith\Generator\Template;
 use dclaysmith\Generator\Template;
 use dclaysmith\Generator\Formatter;
 
-class BusinessObjectTemplate extends Template {
+class BusinessObjectTemplate extends TableTemplate 
+{
 
-	public function filename($tableName) {
-		return $this->getFormatter($tableName)			// tbl_p_user_table-product
-						->toTitle() 				// Tbl_P_User_Table-Product
-						->replace("Tbl_P_","boP") 	// boPUser_Table-Product
-						->replace("Tbl_C_","boC")	// (apply to child tables as well)
-						->strip("_") 				// doPUserTable-Product
-						->replace("-","_") 			// doPUserTable_Product
-						->toString();				// return string
+	public function filename() 
+	{
+		return $this->getFormatter($this->getTable()->getName())	// tbl_p_user_table-product
+						->toTitle() 								// Tbl_P_User_Table-Product
+						->replace("Tbl_P_","boP") 					// boPUser_Table-Product
+						->replace("Tbl_C_","boC")					// (apply to child tables as well)
+						->strip("_") 								// doPUserTable-Product
+						->replace("-","_") 							// doPUserTable_Product
+						->toString();								// return string
 	}
 
-	private function toProperName($base) {
-		return $this->getFormatter($base)				// tbl_p_user_table-product
-						->toTitle()					// Tbl_P_User_Table-Product
-						->strip("_Id") 				// (We don't need ID)
-						->strip("Tbl_P_") 			// User_Table-Product
-						->strip("Tbl_C_")			// (apply to child tables as well)
-						->strip("_") 				// UserTable-Product
-						->replace("-","_") 			// UserTable_Product
+	private function toProperName($base) 
+	{
+		return $this->getFormatter($base)							// tbl_p_user_table-product
+						->toTitle()									// Tbl_P_User_Table-Product
+						->strip("_Id") 								// (We don't need ID)
+						->strip("Tbl_P_") 							// User_Table-Product
+						->strip("Tbl_C_")							// (apply to child tables as well)
+						->strip("_") 								// UserTable-Product
+						->replace("-","_") 							// UserTable_Product
 						->toString();				
 	}
 
-	private function toPluralProperName($base) {
+	private function toPluralProperName($base) 
+	{
 		return $this->getFormatter($this->toProperName($base))->pluralize()->toString();
 	}
 
-	private function toEngineClassName($tableName) {
-		if (false !== strpos($tableName,"tbl_p_")) {
-			return $this->toProperName($tableName)."_Eng";
+	private function toEngineClassName($base) 
+	{
+		if (false !== strpos($base,"tbl_p_")) {
+			return $this->toProperName($base)."_Eng";
 		} else {
-			return "c".$this->toProperName($tableName)."_Eng";
+			return "c".$this->toProperName($base)."_Eng";
 		}	
 	}	
-
-	private function getTable() {
-		return $this->_table;
-	}
 
 	/**
 	 * generate
 	 */
-	public function generate(\dclaysmith\Generator\Database\Table $_table) {
-
-		$this->_table = $_table;
+	public function generate() {
 
 		// skip tables that do not begin with tbl_c_ or tbl_p_
-		if ( !preg_match('/^tbl_[pc]_/', $_table->name )) return "";
+		if ( !preg_match('/^tbl_[pc]_/', $this->getTable()->name )) return "";
 
-		$templateVariable 	= $this->getFormatter($_table->name)->strip(array('tbl_c_','tbl_p_'))->toString();
-		$templateClass 		= $this->toProperName($_table->name);
+		$templateVariable 	= $this->getFormatter($this->getTable()->name)->strip(array('tbl_c_','tbl_p_'))->toString();
+		$templateClass 		= $this->toProperName($this->getTable()->name);
 
 		$aOutput[] = <<<EOF
 

@@ -10,6 +10,32 @@
 
 namespace dclaysmith\Generator;
 
+use dclaysmith\Generator\Connection;
+
+/**
+ * Interface definining extendable Connections
+ * @author D Clay Smith <dclaysmith@gmail.com>
+ */
+interface IConnection 
+{
+
+	/**
+	 * @return array
+	 */
+	function getTables();
+
+	/**
+	 * @return array
+	 */  
+  	function getColumns($tableName);
+  
+	/**
+	 * @return array
+	 */
+	function getRows($tableName);
+
+}
+
 /**
  * Abstract class defining a datasource connection
  * @author D Clay Smith <dclaysmith@gmail.com>
