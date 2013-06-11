@@ -42,7 +42,7 @@ class Table
 	 * @param string $name
 	 * @return void
 	 */
-	public function __construct($connection, $name, $columns = null) 
+	public function __construct($connection, $name) 
 	{
 		$this->connection 	= $connection;
 		$this->name 		= $name;

@@ -23,7 +23,7 @@ class Database
     private $connection;
 
     /**
-     * @var dclaysmith\Generator\array
+     * @var array
      */
     private $tables;
 
@@ -40,7 +40,6 @@ class Database
      */
     public function getTables() 
     {
-
         if (!$this->tables) 
         {
             $this->tables = $this->connection->getTables();

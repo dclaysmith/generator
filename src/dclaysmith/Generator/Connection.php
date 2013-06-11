@@ -14,19 +14,9 @@ namespace dclaysmith\Generator;
  * Abstract class defining a datasource connection
  * @author D Clay Smith <dclaysmith@gmail.com>
  */
-abstract class Connection 
+abstract class Connection implements IConnection 
 {
 
-	/**
-	 * @var array
-	 */
-	private $tables;
-
-	public function __construct($connection) 
-	{
-		$this->connection = $connection;
-	}
-	
 }
 
 ?>

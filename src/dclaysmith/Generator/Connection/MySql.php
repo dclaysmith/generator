@@ -7,13 +7,18 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-Namespace dclaysmith\Generator\Connection;
+
+namespace dclaysmith\Generator\Connection;
 
 use dclaysmith\Generator\Connection;
 use dclaysmith\Generator\Database\Table;
 use dclaysmith\Generator\Database\Column;
 
-class MySql extends Connection implements IConnection 
+/**
+ * Connection for MySql Connections
+ * @author D Clay Smith <dclaysmith@gmail.com>
+ */
+class MySql extends Connection
 {
 
     /**
@@ -81,6 +86,10 @@ class MySql extends Connection implements IConnection
         return $tables;
     }
 
+    /**
+     * @param string $tableName
+     * @return array
+     */
     public function getColumns($tableName)
     {
         $pattern = "/^([A-Za-z]+)(\({1}([0-9]+)\){1})?.*?$/";
@@ -125,6 +134,10 @@ class MySql extends Connection implements IConnection
         return $columns;
     }
 
+    /**
+     * @param string $tableName
+     * @return array
+     */
     public function getRows($tableName) 
     {
         $dbh = new \PDO("mysql:host=".$this->host.";dbname=".$this->database, $this->username, $this->password);

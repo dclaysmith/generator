@@ -10,6 +10,10 @@
 
 namespace dclaysmith\Generator\Connection;
 
+/**
+ * Interface definining extendable Connections
+ * @author D Clay Smith <dclaysmith@gmail.com>
+ */
 interface IConnection 
 {
 

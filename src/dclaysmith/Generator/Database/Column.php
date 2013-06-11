@@ -11,7 +11,7 @@
 namespace dclaysmith\Generator\Database;
 
 /**
- * Representation of a single table in a database
+ * Representation of a single column in a database
  * @author D Clay Smith <dclaysmith@gmail.com>
  */
 class Column 
