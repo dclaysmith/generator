@@ -224,7 +224,7 @@ class Generator
             return;
         }
 
-        $handle             = (file_exists($destination)) ? fopen($destination, "w+") : fopen($destination, "x+");
+        $handle = (file_exists($destination)) ? fopen($destination, "w+") : fopen($destination, "x+");
         fwrite($handle, $output);
         fclose($handle);
     }
