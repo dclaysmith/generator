@@ -30,6 +30,7 @@ class Compiler
 
         $archiveContents = array();
 
+        $archiveContents[] = "../Generator.php"; // contained one level up ?
         $archiveContents[] = "Connection/MySql.php";
         $archiveContents[] = "Database/Column.php";
         $archiveContents[] = "Database/Table.php";
@@ -39,8 +40,7 @@ class Compiler
         $archiveContents[] = "Database.php";
         $archiveContents[] = "Formatter.php";
         $archiveContents[] = "Template.php";
-        $archiveContents[] = "PharStub.php";
-        $archiveContents[] = "../Generator.php"; // contained one level up ?
+        $archiveContents[] = "../PharStub.php";
 
 	    $phar = new \Phar($pharFile, 0, 'generator.phar');
         $phar->setSignatureAlgorithm(\Phar::SHA1);

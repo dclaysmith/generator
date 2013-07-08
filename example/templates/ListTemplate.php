@@ -1,11 +1,16 @@
 <?php
-Namespace dclaysmith\Generator\Template;
 
-class ListTemplate extends \dclaysmith\Generator\Template {
+namespace dclaysmith\Generator\Template;
 
-	public function generate() {
+use dclaysmith\Generator\Template;
+use dclaysmith\Generator\Formatter;
+use dclaysmith\Generator\Database\Table;
+
+class ListTemplate extends TableTemplate 
+{
+	public function generate()
+	{
 		
 	}
-
 }
 ?>

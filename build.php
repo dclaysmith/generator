@@ -3,8 +3,8 @@ require_once("src/dclaysmith/Generator/Compiler.php");
 
 use dclaysmith\Generator\Compiler;
 
-$generator = new Compiler();
+$compiler = new Compiler();
 
-$generator->compile( realpath("./") . "/bin/generator.phar" );
+$compiler->compile( realpath("./") . "/bin/generator.phar" );
 	
 ?>

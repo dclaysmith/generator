@@ -9,9 +9,11 @@
  */
 use dclaysmith\Generator;
 
-$sConfiguration = file_get_contents("generator.json");
+$configuration 	= file_get_contents("generator.json");
 
-$generator = new Generator($sConfiguration);
+$formatter 		= new Formatter();
+
+$generator 		= new Generator($configuration);
 
 $generator->run();
 ?>

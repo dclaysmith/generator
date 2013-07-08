@@ -1,5 +1,6 @@
 <?php
-Namespace dclaysmith\Generator\Template;
+
+namespace dclaysmith\Generator\Template;
 
 use dclaysmith\Generator\Template;
 use dclaysmith\Generator\Formatter;
@@ -56,7 +57,6 @@ class BusinessObjectTemplate extends TableTemplate
 		$templateClass 		= $this->toProperName($this->getTable()->name);
 
 		$aOutput[] = <<<EOF
-
 <?php
 /**
  * abstract class {$templateClass}_Base
@@ -80,6 +80,9 @@ class BusinessObjectTemplate extends TableTemplate
  * @author     D CLAY SMITH
  * @copyright  2007 D Clay Smith
  */
+
+namespace akita\classes\models\bo;
+
 if (!defined('MEMCACHE_ENABLED')) define('MEMCACHE_ENABLED', 'false');
 
 abstract class {$templateClass}_Base extends CDataObject {

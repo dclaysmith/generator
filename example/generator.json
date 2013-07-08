@@ -4,11 +4,11 @@
     "debug": true,
     "connections": [
     	{
-    		"name":               "app",
-    		"host":               "127.0.0.1",
-    		"user":               "root",
-    		"password":           "",
-    		"database":           "crm_app",
+            "name":               "app",
+            "host":               "127.0.0.1",
+            "user":               "root",
+            "password":           "",
+            "database":           "crm_app",
             "type":               "mysql"
     	}
     ],

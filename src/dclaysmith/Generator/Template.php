@@ -53,5 +53,4 @@ abstract class Template
 		return $this->formatter;			
 	}
 }
-
 ?>

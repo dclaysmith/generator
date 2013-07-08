@@ -12,7 +12,8 @@
 spl_autoload_register( "DCSAutoloader" );
 
 // autoloader
-function DCSAutoloader( $class ){
+function DCSAutoloader( $class )
+{
 
     // it will only autoload classes into the generator scope
     if( preg_match('/^dclaysmith/', $class ) )
