@@ -17,7 +17,7 @@ namespace dclaysmith\Generator;
  */
 abstract class Template 
 {
-	
+
 	/**
 	 * @var dclaysmith\Generator\Formatter
 	 */
@@ -45,6 +45,7 @@ abstract class Template
 	 */
 	protected function getFormatter($value) 
 	{
+		
 		if (!$this->formatter)
 		{
 			throw new \exception("No formatter specified for the template.");

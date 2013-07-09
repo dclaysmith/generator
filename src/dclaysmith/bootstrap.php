@@ -21,6 +21,7 @@ function DCSAutoloader( $class )
 
         // transform the namespace in path
         $path = str_replace("\\", DIRECTORY_SEPARATOR, $class );
+        
         // filepath
         $path = __DIR__ . DIRECTORY_SEPARATOR . str_replace("dclaysmith/","",$path) . ".php";
 

@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * This file is part of Generator.
  *
  * (c) D Clay Smith <dclaysmith@gmail.com>
@@ -14,6 +14,11 @@ use dclaysmith\Generator\Connection\MySql;
 use dclaysmith\Generator\Formatter;
 
 /**
+ * class Generator
+ *
+ * Given a configuration file (generator.json) will process templates
+ * and produce code. You can pass in 
+ *
  * @author D Clay Smith <dclaysmith@gmail.com>
  */
 class Generator 
