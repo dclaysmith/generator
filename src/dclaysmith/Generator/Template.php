@@ -17,6 +17,7 @@ namespace dclaysmith\Generator;
  */
 abstract class Template 
 {
+	
 	/**
 	 * @var dclaysmith\Generator\Formatter
 	 */

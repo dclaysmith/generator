@@ -16,6 +16,7 @@ namespace dclaysmith\Generator;
  */
 class Compiler
 {
+
     /**
      * Compiles composer into a single phar file
      * @param  string  $pharFile The full path to the file to create
@@ -30,33 +31,45 @@ class Compiler
 
         $archiveContents = array();
 
-        $archiveContents[] = "../Generator.php"; // contained one level up ?
-        $archiveContents[] = "Connection/MySql.php";
-        $archiveContents[] = "Database/Column.php";
-        $archiveContents[] = "Database/Table.php";
-        $archiveContents[] = "Template/DatabaseTemplate.php";
-        $archiveContents[] = "Template/TableTemplate.php";
-        $archiveContents[] = "Connection.php";
-        $archiveContents[] = "Database.php";
-        $archiveContents[] = "Formatter.php";
-        $archiveContents[] = "Template.php";
-        $archiveContents[] = "../PharStub.php";
+        $archiveContents["Generator.php"]                           = "../Generator.php"; // contained one level up ?
+        $archiveContents["Generator_Connection_MySql.php"]          = "Connection/MySql.php";
+        $archiveContents["Generator_Database_Column.php"]           = "Database/Column.php";
+        $archiveContents["Generator_Database_Table.php"]            = "Database/Table.php";
+        $archiveContents["Generator_Template_DatabaseTemplate.php"] = "Template/DatabaseTemplate.php";
+        $archiveContents["Generator_Template_TableTemplate.php"]    = "Template/TableTemplate.php";
+        $archiveContents["Generator_Connection.php"]                = "Connection.php";
+        $archiveContents["Generator_Database.php"]                  = "Database.php";
+        $archiveContents["Generator_Formatter.php"]                 = "Formatter.php";
+        $archiveContents["Generator_Template.php"]                  = "Template.php";
+        $archiveContents["Generator_PharStub.php"]                  = "PharStub.php";
 
-	    $phar = new \Phar($pharFile, 0, 'generator.phar');
-        $phar->setSignatureAlgorithm(\Phar::SHA1);
-        foreach ($archiveContents as $path) 
+        try 
         {
-        	$this->addFile($phar, $path);
+            
+            $phar = new \Phar($pharFile, 0, 'generator.phar');
+
+            foreach ($archiveContents as $key => $path) 
+            {
+                $this->addFile($phar, $key, $path);
+            }
+
+            $phar->setSignatureAlgorithm(\Phar::SHA1);
+            $phar->setStub($this->getStub());
+            $phar->stopBuffering();
+
+            unset($phar);
+
+        } 
+        catch (Exception $e) 
+        {
+            echo 'Write operations failed on brandnewphar.phar: ', $e;
         }
 
-        $phar->setStub($this->getStub());
-        $phar->stopBuffering();
-        unset($phar);
     }
 
-    private function addFile($phar, $file) 
+    private function addFile($phar, $key, $file) 
     {
-        $phar->addFile(__DIR__.DIRECTORY_SEPARATOR.$file, $file);
+        $phar->addFile(__DIR__.DIRECTORY_SEPARATOR.$file, $key);
     }
 
     private function getStub() {
@@ -74,7 +87,7 @@ class Compiler
  */
 
 Phar::mapPhar('generator.phar');
-include 'phar://generator.phar/PharStub.php';
+include 'phar://generator.phar/Generator_PharStub.php';
 __HALT_COMPILER();
 EOF;
 
