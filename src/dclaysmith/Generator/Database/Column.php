@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace dclaysmith\Generator\Database;
+namespace dclaysmith\Generator\Database\Table;
 
 /**
  * Representation of a single column in a database

@@ -12,7 +12,7 @@ namespace dclaysmith\Generator\Connection;
 
 use dclaysmith\Generator\Connection;
 use dclaysmith\Generator\Database\Table;
-use dclaysmith\Generator\Database\Column;
+use dclaysmith\Generator\Database\Table\Column;
 
 /**
  * Connection for MySql Connections
@@ -107,7 +107,7 @@ class MySql extends Connection
 
             while ($row = $stmt->fetch()) 
             {
-                $column                 = new Column($this);
+                $column                 = new Column();
                 $column->name           = $row["Field"];
                 $column->nullable       = ($row["Null"] == "YES") ? true : false;
                 $column->primaryKey     = ($row["Key"] == "PRI") ? true : false;
@@ -146,19 +146,22 @@ class MySql extends Connection
      */
     public function getRows($tableName) 
     {
+
         $dbh = new \PDO("mysql:host=".$this->host.";dbname=".$this->database, $this->username, $this->password);
 
         $rows   = array();
         
-        $stmt   = $dbh->prepare("SELECT * FROM ?");   
+        $stmt   = $dbh->prepare("SELECT * FROM `".$tableName."`");   
         
-        if ($stmt->execute(array($tableName))) 
+        if ($stmt->execute()) 
         {
+
             while ($row = $stmt->fetch()) 
             {
                 $rows[] = $row;
             }
         }   
+
         return $rows;
     }
 }

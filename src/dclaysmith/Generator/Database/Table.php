@@ -63,6 +63,7 @@ class Table
 	 */
 	public function getColumns() 
 	{
+
 		if (!$this->columns)
 		{
 			$this->columns = $this->connection->getColumns($this->name);
@@ -76,6 +77,7 @@ class Table
 	 */
 	public function getRows() 
 	{
+
 		if (!$this->rows)
 		{
 			$this->rows = $this->connection->getRows($this->name);

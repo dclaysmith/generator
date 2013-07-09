@@ -5,53 +5,10 @@ namespace dclaysmith\Generator\Template;
 use dclaysmith\Generator\Template;
 use dclaysmith\Generator\Formatter;
 use dclaysmith\Generator\Database\Table;
+use dclaysmith\Generator\Database\Table\Column;
 
 class DataObjectTemplate extends TableTemplate 
 {
-
-	public function formatFilename() 
-	{
-		return $this->getFormatter($this->getTable()->getName())	// tbl_p_user_table-product
-						->toTitle() 								// Tbl_P_User_Table-Product
-						->replace("Tbl_P_","doP") 					// boPUser_Table-Product
-						->replace("Tbl_C_","doC")					// (apply to child tables as well)
-						->strip("_") 								// doPUserTable-Product
-						->replace("-","_") 							// doPUserTable_Product
-						->toString();								// return string
-	}
-
-	private function toProperName($base) 
-	{
-		return $this->getFormatter($base)							// tbl_p_user_table-product
-						->toTitle()									// Tbl_P_User_Table-Product
-						->strip("_Id") 								// (We don't need ID)
-						->strip("Tbl_P_") 							// User_Table-Product
-						->strip("Tbl_C_")							// (apply to child tables as well)
-						->strip("_") 								// UserTable-Product
-						->replace("-","_") 							// UserTable_Product
-						->toString();				
-	}
-
-	private function toPluralProperName($base) 
-	{
-		return $this->getFormatter($this->toProperName($base))->pluralize()->toString();
-	}
-
-	private function toEngineClassName($tableName) 
-	{
-		if (false !== strpos($tableName,"tbl_p_")) 
-		{
-			return $this->toProperName($tableName)."_Eng";
-		} 
-		elseif (false !== strpos($tableName,"tbl_c_")) 
-		{
-			return "c".$this->toProperName($tableName)."_Eng";
-		}
-		else
-		{
-			throw new \exception("Invalid table name: ".$tableName);
-		}
-	}	
 
 	/**
 	 * generate
@@ -143,74 +100,7 @@ EOF;
 					continue;
 					break;
 				default:
-					$sMethodName 	= str_replace(' ','',ucwords(str_replace('_',' ',str_replace('tbl_c_','',$column->name))));
-					$sVariableName 	= str_replace(' ','',ucwords(str_replace('_',' ',str_replace('tbl_c_','',$column->name))));
-
-		$aOutput[] = <<<EOF
-	public function get{$sMethodName}() {
-EOF;
-					if ($column->type == "tinyint") {
-		$aOutput[] = <<<EOF
-		return (\$this->{$sVariableName}) ? 1 : 0;
-EOF;
-					} else {
-		$aOutput[] = <<<EOF
-		return \$this->_{$sVariableName};
-EOF;
-					}
-		$aOutput[] = <<<EOF
-	}
-	public function set{$sMethodName}(\$value) {
-EOF;
-		switch ($column->type) {
-			case "double":
-				$aOutput[] = <<<EOF
-		if (!is_numeric(\$value)) {
-			throw new exception('Non-numeric value provided for set{$sMethodName}.');	
-		}					
-EOF;
-				break;
-			case "int":
-			case "bigint":
-				$aOutput[] = <<<EOF
-		if (!is_int(\$value)) {
-			throw new exception('Non-integer value provided for set{$sMethodName}.');	
-		}	
-EOF;
-				break;
-			case "tinyint":
-				$aOutput[] = <<<EOF
-		if (!(\$value === true || \$value === false)) {
-			throw new exception('Non-boolean value provided for set{$sMethodName}.');	
-		}		
-EOF;
-				break;
-			case "datetime":
-				$aOutput[] = <<<EOF
-		if (!CValidation::isValidDatetime(\$value)) {
-			throw new exception('Non-date value provided for set{$sMethodName}.');	
-		}		
-EOF;
-				break;
-			case "varchar":	
-				$aOutput[] = <<<EOF
-		if (strlen(stripslashes(\$value)) > {$column->length}) {
-			throw new exception('The value provided for set{$sMethodName} exceeds the allowed length of {$column->length}.');				
-		} 			
-EOF;
-				break;
-		}
-		
-		$aOutput[] = <<<EOF
-
-		if (\$this->_{$sVariableName} != \$value) {
-			if (!\$this->getIsNew()) \$this->_aChanged[] = "{$sMethodName}";
-			\$this->_isDirty = true;
-		}
-		\$this->_{$sVariableName} = \$value;
-		return true;
-	}
-EOF;
+					$aOutput[] = $this->generateSetters($column);
 					break;
 			}
 		}
@@ -483,21 +373,110 @@ EOF;
 }
 EOF;
 
-		$typeTable = "tbl_t_".$templateVariable;
-		if (array_key_exists($typeTable, $this->getTables())) {
-			$tables = $this->getTables();
+		$typeTable 	= "tbl_t_".$templateVariable;
+		$tables 	= $this->getTables();
+		if (array_key_exists($typeTable, $tables)) {
 			$table = $tables[$typeTable];
 			foreach ($table->getRows() as $row) {
+
+				$type = $this->toProperName($row["type"]);
+
 				$aOutput[] = <<<EOF
 /**	
- * abstract class CLASSNAME_cCHILDCLASS_Base
+ * abstract class {$templateClass}_c{$type}_Base
  *
  * @category   Data Object 
  * @author     D CLAY SMITH
  * @copyright  2007 D Clay Smith
  *
  */
-abstract class CLASSNAME_cCHILDCLASS_Base extends BASECLASS {
+abstract class {$templateClass}_c{$type}_Base extends {$templateClass}_Base {
+
+	// PROPERTIES
+EOF;
+
+		foreach ($this->getTable()->getColumns() as $column) {
+			switch ($column->name) {
+				case "id":
+				case "date_entered":
+				case "date_modified":
+				case "ts":
+					continue;
+					break;
+				default:
+					$sMethodName 	= str_replace(' ','',ucwords(str_replace('_',' ',str_replace('tbl_c_','',$column->name))));
+					$sVariableName 	= str_replace(' ','',ucwords(str_replace('_',' ',str_replace('tbl_c_','',$column->name))));
+
+		$aOutput[] = <<<EOF
+	public function get{$sMethodName}() {
+EOF;
+					if ($column->type == "tinyint") {
+		$aOutput[] = <<<EOF
+		return (\$this->{$sVariableName}) ? 1 : 0;
+EOF;
+					} else {
+		$aOutput[] = <<<EOF
+		return \$this->_{$sVariableName};
+EOF;
+					}
+		$aOutput[] = <<<EOF
+	}
+	public function set{$sMethodName}(\$value) {
+EOF;
+		switch ($column->type) {
+			case "double":
+				$aOutput[] = <<<EOF
+		if (!is_numeric(\$value)) {
+			throw new exception('Non-numeric value provided for set{$sMethodName}.');	
+		}					
+EOF;
+				break;
+			case "int":
+			case "bigint":
+				$aOutput[] = <<<EOF
+		if (!is_int(\$value)) {
+			throw new exception('Non-integer value provided for set{$sMethodName}.');	
+		}	
+EOF;
+				break;
+			case "tinyint":
+				$aOutput[] = <<<EOF
+		if (!(\$value === true || \$value === false)) {
+			throw new exception('Non-boolean value provided for set{$sMethodName}.');	
+		}		
+EOF;
+				break;
+			case "datetime":
+				$aOutput[] = <<<EOF
+		if (!CValidation::isValidDatetime(\$value)) {
+			throw new exception('Non-date value provided for set{$sMethodName}.');	
+		}		
+EOF;
+				break;
+			case "varchar":	
+				$aOutput[] = <<<EOF
+		if (strlen(stripslashes(\$value)) > {$column->length}) {
+			throw new exception('The value provided for set{$sMethodName} exceeds the allowed length of {$column->length}.');				
+		} 			
+EOF;
+				break;
+		}
+		
+		$aOutput[] = <<<EOF
+
+		if (\$this->_{$sVariableName} != \$value) {
+			if (!\$this->getIsNew()) \$this->_aChanged[] = "{$sMethodName}";
+			\$this->_isDirty = true;
+		}
+		\$this->_{$sVariableName} = \$value;
+		return true;
+	}
+EOF;
+					break;
+			}
+		}
+
+				$aOutput[] = <<<EOF
 }
 
 EOF;
@@ -513,7 +492,9 @@ EOF;
  * This class exposes the base functions for manipulating the data object
  *
  * NOTE: This file is autogenerated from the {$this->getTable()->name} using
- * the CG2K6.
+ * Generator.
+ *
+ * https://github.com/dclaysmith/generator
  *
  * IMPORTANT: This file should not be changed by hand. Any changes
  * that need to be made should be made to the template file and replicated for
@@ -531,20 +512,148 @@ EOF;
  */
 class {$this->toEngineClassName($this->getTable()->name)} {
 
-	/**
+	/*
 	 * Constructor
 	 */
 	function __construct() {
 		throw new exception('Do not instantiate this class. Use static methods.');
 	}
+EOF;
+		
+	
+
+		$aOutput[] = <<<EOF
 }
 ?>
 EOF;
 
-
-
-
 		return implode("\n",$aOutput);
+	}
+
+	function p($value)
+	{
+		echo "<pre>";
+		die(print_r($value, true));
+	}
+
+	public function formatFilename() 
+	{
+		return $this->getFormatter($this->getTable()->getName())	// tbl_p_user_table-product
+						->toTitle() 								// Tbl_P_User_Table-Product
+						->replace("Tbl_P_","doP") 					// boPUser_Table-Product
+						->replace("Tbl_C_","doC")					// (apply to child tables as well)
+						->strip("_") 								// doPUserTable-Product
+						->replace("-","_") 							// doPUserTable_Product
+						->toString();								// return string
+	}
+
+	private function toProperName($base) 
+	{
+		return $this->getFormatter($base)							// tbl_p_user_table-product
+						->toTitle()									// Tbl_P_User_Table-Product
+						->strip("_Id") 								// (We don't need ID)
+						->strip("Tbl_P_") 							// User_Table-Product
+						->strip("Tbl_C_")							// (apply to child tables as well)
+						->strip("_") 								// UserTable-Product
+						->replace("-","_") 							// UserTable_Product
+						->toString();				
+	}
+
+	private function toPluralProperName($base) 
+	{
+		return $this->getFormatter($this->toProperName($base))->pluralize()->toString();
+	}
+
+	private function toEngineClassName($tableName) 
+	{
+		if (false !== strpos($tableName,"tbl_p_")) 
+		{
+			return $this->toProperName($tableName)."_Eng";
+		} 
+		elseif (false !== strpos($tableName,"tbl_c_")) 
+		{
+			return "c".$this->toProperName($tableName)."_Eng";
+		}
+		else
+		{
+			throw new \exception("Invalid table name: ".$tableName);
+		}
+	}
+
+	/**
+	 * @param $column dclaysmith\Generator\Database\Column
+	 * @return string
+	 */
+	private function generateSetters(Column $column)
+	{
+		$columnNameProper = $this->toProperName($column->name);
+
+		$aOutput = array();
+		$aOutput[] = <<<EOF
+	public function get{$columnNameProper}() {
+EOF;
+					if ($column->type == "tinyint") {
+		$aOutput[] = <<<EOF
+		return (\$this->_{$columnNameProper}) ? 1 : 0;
+EOF;
+					} else {
+		$aOutput[] = <<<EOF
+		return \$this->_{$columnNameProper};
+EOF;
+					}
+		$aOutput[] = <<<EOF
+	}
+	public function set{$columnNameProper}(\$value) {
+EOF;
+		switch ($column->type) {
+			case "double":
+				$aOutput[] = <<<EOF
+		if (!is_numeric(\$value)) {
+			throw new exception('Non-numeric value provided for set{$columnNameProper}.');	
+		}					
+EOF;
+				break;
+			case "int":
+			case "bigint":
+				$aOutput[] = <<<EOF
+		if (!is_int(\$value)) {
+			throw new exception('Non-integer value provided for set{$columnNameProper}.');	
+		}	
+EOF;
+				break;
+			case "tinyint":
+				$aOutput[] = <<<EOF
+		if (!(\$value === true || \$value === false)) {
+			throw new exception('Non-boolean value provided for set{$columnNameProper}.');	
+		}		
+EOF;
+				break;
+			case "datetime":
+				$aOutput[] = <<<EOF
+		if (!CValidation::isValidDatetime(\$value)) {
+			throw new exception('Non-date value provided for set{$columnNameProper}.');	
+		}		
+EOF;
+				break;
+			case "varchar":	
+				$aOutput[] = <<<EOF
+		if (strlen(stripslashes(\$value)) > {$column->length}) {
+			throw new exception('The value provided for set{$columnNameProper} exceeds the allowed length of {$column->length}.');				
+		} 			
+EOF;
+				break;
+		}
+		
+		$aOutput[] = <<<EOF
+
+		if (\$this->_{$columnNameProper} != \$value) {
+			if (!\$this->getIsNew()) \$this->_aChanged[] = "{$columnNameProper}";
+			\$this->_isDirty = true;
+		}
+		\$this->_{$columnNameProper} = \$value;
+		return true;
+	}
+EOF;
 	}
 
 }
