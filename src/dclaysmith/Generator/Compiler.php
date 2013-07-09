@@ -33,7 +33,7 @@ class Compiler
 
         $archiveContents["Generator.php"]                           = "../Generator.php"; // contained one level up ?
         $archiveContents["Generator_Connection_MySql.php"]          = "Connection/MySql.php";
-        $archiveContents["Generator_Database_Column.php"]           = "Database/Column.php";
+        $archiveContents["Generator_Database_Table_Column.php"]     = "Database/Table/Column.php";
         $archiveContents["Generator_Database_Table.php"]            = "Database/Table.php";
         $archiveContents["Generator_Template_DatabaseTemplate.php"] = "Template/DatabaseTemplate.php";
         $archiveContents["Generator_Template_TableTemplate.php"]    = "Template/TableTemplate.php";
