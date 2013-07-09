@@ -1,16 +1,20 @@
 Generator
 =========
 
-Generator is a code generation tool written in PHP. You write templates in PHP but the output can be in any language you desire. It is at its most powerful when given a database schema to read. You can create ORM layers, administration interfaces, or full CRUD applications.
+Generator is a code generation tool written in PHP. You write templates in PHP but the output can be in any language you desire. You can create ORM layers, administration interfaces, or full CRUD applications.
 
-Generator currently supports MySql but in time should support a number of different relational database datasources.
+Generator currently supports MySql but in time should support a number of different relational datasources.
 
 Installation
 ------------
 
-NOTE: Disregard this method, the installer executable is not included in that release. Download `generator.phar` from the most current release. 
+To install Generator, run the following command from the directory you would like to install Generator:
 
-`curl -sS https://github.com/dclaysmith/generator/releases/v0.1.0/2645/installer | php`
+`curl -sSL https://github.com/dclaysmith/generator/releases/v0.1.1/2843/installer | php`
+
+Or download `generator.phar` from the most current release and run:
+
+`php generator.phar`
 
 Usage
 -----
