@@ -19,11 +19,12 @@ function DCSAutoloader( $class )
     if( preg_match('/^dclaysmith/', $class ) )
     {
 
-    	$class = str_replace("dclaysmith\\","",$class);
+		$class = str_replace("dclaysmith\\","",$class);
 
-    	$class = str_replace("\\","_",$class);
+		$class = str_replace("\\","_",$class);
 
 		require_once 'phar://generator.phar/' . $class . ".php";
+		
     }
     
 }

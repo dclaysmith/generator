@@ -16,6 +16,7 @@ namespace dclaysmith\Generator;
  */
 class Formatter
 {
+
 	/**
 	 * @var string
 	 */
@@ -113,9 +114,12 @@ class Formatter
 		$string = strtoupper($string);
 		while ($i<$len) {
 			$char=substr($string,$i,1);
-			if (ereg( "[A-Z]",$last)) {
+			if (ereg( "[A-Z]",$last)) 
+			{
 				$new.=strtolower($char);
-			} else {
+			} 
+			else 
+			{
 				$new.=strtoupper($char);
 			}
 			$last=$char;
@@ -137,14 +141,21 @@ class Formatter
 		$new= "";
 		$bFound = false;
 		$string=strtoupper($string);
-		while ($i<$len) {
+		while ($i<$len) 
+		{
 			$char=substr($string,$i,1);
-			if (preg_match( "[A-Z]", $last )) {
+			if (preg_match( "[A-Z]", $last )) 
+			{
 				$new.=strtolower($char);
-			} else {
-				if ($bFound) {
+			}
+			else 
+			{
+				if ($bFound) 
+				{
 					$new.=strtoupper($char);
-				} else {
+				}
+				else
+				{
 					$new.=strtolower($char);
 					$bFound = true;
 				}
@@ -165,15 +176,18 @@ class Formatter
 		$string = $this->value;
 
 		// read the plural form file if we haven't already
-		foreach ($this->pluralForms as $key => $value) {
-			if (strtolower($key) == strtolower($string)) {
+		foreach ($this->pluralForms as $key => $value) 
+		{
+			if (strtolower($key) == strtolower($string)) 
+			{
 				$this->value = trim($value);
 				return $this;
 			}
 		}
 
 		// if we are talking about a 2 letter word, just add an s
-		if (strlen($string) < 3) {
+		if (strlen($string) < 3) 
+		{
 			$this->value = $string;
 			return $this;
 		}
@@ -181,7 +195,8 @@ class Formatter
 		// if there were no exceptions named then apply standard rules
 		// check two letter endings
 		$sLastTwoCharacters = substr($string, -2);
-		switch ($sLastTwoCharacters) {
+		switch ($sLastTwoCharacters) 
+		{
 			// Where a noun ends in a sibilant sound
 			case "ss":
 			case "sh":
@@ -209,7 +224,8 @@ class Formatter
 		// consonant then another letter. use regex for this.
 		$pattern = "/(.*?[^aeiou])(\w{1})$/i";
 		$matches = array();
-		if (preg_match($pattern,$string,$matches)) {
+		if (preg_match($pattern,$string,$matches)) 
+		{
 			switch ($matches[2]) {
 				case("s"):
 					$this->value = $matches[0]."es";
@@ -226,7 +242,8 @@ class Formatter
 			}
 		}
 
-		if (preg_match("/[xs]$/",$string)) {
+		if (preg_match("/[xs]$/",$string)) 
+		{
 			$this->value = $string . "es";
 			return $this;
 		}
