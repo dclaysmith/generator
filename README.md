@@ -1,9 +1,9 @@
 Generator
 =========
 
-WARNING: This is super pre-alpha. Disregard everything.
+Generator is a code generation tool written in PHP. You write templates in PHP but the output can be in any language you desire. It is at its most powerful when given a database schema to read. You can create ORM layers, administration interfaces, or full CRUD applications.
 
-Generator is a code generation tool. You write templates in PHP but the output can be in any language. It is at its most powerful when given a database schema to read. You can create ORM layers, administration interfaces, or full CRUD applications.
+Generator currently supports MySql but in time should support a number of different relational database datasources.
 
 Installation
 ------------

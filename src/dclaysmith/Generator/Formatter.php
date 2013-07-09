@@ -84,6 +84,26 @@ class Formatter
 	}
 
 	/**
+	 * @param $prefix string
+	 * @return Formatter $this
+	 */
+	public function prepend($prefix)
+	{
+		$this->value = $prefix . $this->value;
+		return $this;
+	}	
+
+	/**
+	 * @param $suffix string
+	 * @return Formatter $this
+	 */
+	public function append($suffix)
+	{
+		$this->value .= $suffix;
+		return $this;
+	}	
+
+	/**
 	 * @return Formatter $this
 	 */
 	public function toUpper()

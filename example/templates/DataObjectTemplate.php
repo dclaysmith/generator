@@ -19,8 +19,11 @@ class DataObjectTemplate extends TableTemplate
 		// skip tables that do not begin with tbl_c_ or tbl_p_
 		if ( !preg_match('/^tbl_[pc]_/', $this->getTable()->name )) return "";
 
-		$templateVariable 	= $this->getFormatter($this->getTable()->name)->strip(array('tbl_c_','tbl_p_'))->toString();
-		$templateClass 		= $this->toProperName($this->getTable()->name);
+		$templateVariable 		= $this->getFormatter($this->getTable()->name)->strip(array('tbl_c_','tbl_p_'))->toString(); // method_of_contact
+		$templateClass 			= $this->toProperName($this->getTable()->name); // MethodOfContact
+		$templateClassLower		= $this->getFormatter($templateClass)->toLower()->toString();
+		$templateClassPlural	= $this->getFormatter($this->toProperName($this->getTable()->name))->pluralize()->toString();
+		$typeTable 				= "tbl_t_".$templateVariable;
 
 		$aOutput[] = <<<EOF
 <?php
@@ -100,7 +103,7 @@ EOF;
 					continue;
 					break;
 				default:
-					$aOutput[] = $this->generateSetters($column);
+					$aOutput[] = $this->generateParentGettersSetters($column);
 					break;
 			}
 		}
@@ -217,7 +220,7 @@ EOF;
 
         $aOutput[] = "\t\t\$aSql = array();";
         $aOutput[] = "\t\t\$aSql[] = \"INSERT INTO\";";
-        $aOutput[] = "\t\t\$aSql[] = \"`{$table->name}`\";";
+        $aOutput[] = "\t\t\$aSql[] = \"`{$this->getTable()->name}`\";";
         $aOutput[] = "\t\t\$aSql[] = \"($fields)\";";
         $aOutput[] = "\t\t\$aSql[] = \"VALUES\";";
         $aOutput[] = "\t\t\$aSql[] = \"($values)\";";
@@ -307,7 +310,7 @@ EOF;
 
         $aOutput[] = "\t\t\$aSql = array();";
         $aOutput[] = "\t\t\$aSql[] = \"UPDATE\";";
-        $aOutput[] = "\t\t\$aSql[] = \"`{$table->name}`\";";
+        $aOutput[] = "\t\t\$aSql[] = \"`{$this->getTable()->name}`\";";
         $aOutput[] = "\t\t\$aSql[] = \"SET\";";
 
         foreach ($aFields as $variable => $field) {
@@ -373,13 +376,14 @@ EOF;
 }
 EOF;
 
-		$typeTable 	= "tbl_t_".$templateVariable;
 		$tables 	= $this->getTables();
 		if (array_key_exists($typeTable, $tables)) {
 			$table = $tables[$typeTable];
 			foreach ($table->getRows() as $row) {
 
-				$type = $this->toProperName($row["type"]);
+				$type 				= $this->toProperName($row["type"]);
+
+				$childObjectName 	= "_oc".$templateClass.$type;
 
 				$aOutput[] = <<<EOF
 /**	
@@ -392,91 +396,264 @@ EOF;
  */
 abstract class {$templateClass}_c{$type}_Base extends {$templateClass}_Base {
 
+	// VARIABLES
+	public \${$childObjectName};
+
 	// PROPERTIES
 EOF;
+		
+				$childTableName = $this->getFormatter($this->getTable()->getName())
+									->strip(array('tbl_p_'))
+									->prepend('tbl_c_')
+									->append('_'.$type)
+									->toLower()
+									->toString();
 
+				if (array_key_exists($childTableName, $tables)) {
+					$childTable = $tables[$childTableName];
+					foreach ($childTable->getColumns() as $column) {
+						switch ($column->name) {
+							case "id":
+							case "date_entered":
+							case "date_modified":
+							case "ts":
+								continue;
+								break;
+							default:
+								$columnNameProper = $this->getFormatter($column->name)
+															->toTitle()
+															->strip("_")
+															->replace("-","_")
+															->toString();
+
+								$childEngineClassName = $this->toEngineClassName($childTable->name);
+
+								$aOutput[] = <<<EOF
+	/**
+	 * Property get/set{$columnNameProper}()
+	 */
+	public function get{$columnNameProper}() {
+
+		if (\$this->{$childObjectName} == null) {
+			\$this->{$childObjectName} = {$childEngineClassName}::get(\$this->getId(),true,"tbl_c_method_of_contact_address","methodofcontact_id");
+			if (\$this->{$childObjectName} == null) {
+				\$this->{$childObjectName} = {$childEngineClassName}::newcMethodOfContactAddress();
+				if (\$this->getId() > 0) \$this->{$childObjectName}->set{$columnNameProper}(\$this->getId());
+			}
+		}
+		return \$this->{$childObjectName}->get{$columnNameProper}();
+	}
+
+	public function set{$columnNameProper}(\$value) {
+			if (\$this->get{$columnNameProper}() != \$value) {
+				\$this->{$childObjectName}->setIsDirty(true);
+				\$this->setIsDirty(true);
+			}
+			\$this->{$childObjectName}->set{$columnNameProper}(\$value);			
+			return true;
+	}
+
+
+EOF;
+
+								break;
+						}
+					}
+				}
+
+				$aOutput[] = <<<EOF
+
+	public function add() {
+
+		// check for null values
+		\$aNullValues = array();
+EOF;
 		foreach ($this->getTable()->getColumns() as $column) {
 			switch ($column->name) {
-				case "id":
-				case "date_entered":
-				case "date_modified":
-				case "ts":
-					continue;
+				case "id": case "ts": case "date_entered": case "date_modified": case "uuid":
 					break;
 				default:
-					$sMethodName 	= str_replace(' ','',ucwords(str_replace('_',' ',str_replace('tbl_c_','',$column->name))));
-					$sVariableName 	= str_replace(' ','',ucwords(str_replace('_',' ',str_replace('tbl_c_','',$column->name))));
+					if (!$column->nullable) {
 
-		$aOutput[] = <<<EOF
-	public function get{$sMethodName}() {
-EOF;
-					if ($column->type == "tinyint") {
-		$aOutput[] = <<<EOF
-		return (\$this->{$sVariableName}) ? 1 : 0;
-EOF;
-					} else {
-		$aOutput[] = <<<EOF
-		return \$this->_{$sVariableName};
-EOF;
+						switch ($column->type) {
+							case "int": case "bigint":
+								$aOutput[] = "\t\tif (!is_int(\$this->get{$this->toProperName($column->name)}())) {";
+								break;
+							case "tinyint":
+								$aOutput[] = "\t\tif (!(\$this->get{$this->toProperName($column->name)}() == true || \$this->get{$this->toProperName($column->name)}() == false)) {";		
+								break;
+							case "datetime":
+								$aOutput[] = "\t\tif (!CValidation::isValidDatetime(\$this->get{$this->toProperName($column->name)}())) {";
+								break;
+							default:
+								$aOutput[] = "\t\tif (strlen(\$this->get{$this->toProperName($column->name)}()) < 1) {";		
+								break;
+						}
+
+						$sLabel = $this->getFormatter($column->name)->replace("_"," ")->toTitle()->toString();
+
+						$aOutput[] = "\t\t\t\$aNullValues[] = \"{$sLabel}\";";
+						$aOutput[] = "\t\t}";
 					}
-		$aOutput[] = <<<EOF
-	}
-	public function set{$sMethodName}(\$value) {
-EOF;
-		switch ($column->type) {
-			case "double":
-				$aOutput[] = <<<EOF
-		if (!is_numeric(\$value)) {
-			throw new exception('Non-numeric value provided for set{$sMethodName}.');	
-		}					
-EOF;
-				break;
-			case "int":
-			case "bigint":
-				$aOutput[] = <<<EOF
-		if (!is_int(\$value)) {
-			throw new exception('Non-integer value provided for set{$sMethodName}.');	
-		}	
-EOF;
-				break;
-			case "tinyint":
-				$aOutput[] = <<<EOF
-		if (!(\$value === true || \$value === false)) {
-			throw new exception('Non-boolean value provided for set{$sMethodName}.');	
-		}		
-EOF;
-				break;
-			case "datetime":
-				$aOutput[] = <<<EOF
-		if (!CValidation::isValidDatetime(\$value)) {
-			throw new exception('Non-date value provided for set{$sMethodName}.');	
-		}		
-EOF;
-				break;
-			case "varchar":	
-				$aOutput[] = <<<EOF
-		if (strlen(stripslashes(\$value)) > {$column->length}) {
-			throw new exception('The value provided for set{$sMethodName} exceeds the allowed length of {$column->length}.');				
-		} 			
-EOF;
-				break;
-		}
-		
-		$aOutput[] = <<<EOF
-
-		if (\$this->_{$sVariableName} != \$value) {
-			if (!\$this->getIsNew()) \$this->_aChanged[] = "{$sMethodName}";
-			\$this->_isDirty = true;
-		}
-		\$this->_{$sVariableName} = \$value;
-		return true;
-	}
-EOF;
 					break;
 			}
 		}
 
-				$aOutput[] = <<<EOF
+		$aOutput[] = <<<EOF
+
+		if (count(\$aNullValues) > 0) {
+			throw new exception('Insert failed. Null values were provided for the following non-null fields: '.implode(", ",\$sNullFields);
+		}
+
+		\$sUuid = CFunctions::getUuid('{$templateVariable}');
+EOF;
+		$aFields = array();
+		foreach ($this->getTable()->getColumns() as $column) {
+			switch ($column->name) {
+				case "id": case "ts":
+					break;
+				default:	
+					$key = $this->getFormatter($column->name)->replace("_"," ")->toTitle()->strip(' ')->toString();
+					$aFields[$key] = $column->name;
+					break;
+			}
+		}		
+
+		$fields = "`".implode("`,`",$aFields)."`";
+		$values = "':".implode("',':",$aFields)."'";
+
+        $aOutput[] = "\t\t\$aSql = array();";
+        $aOutput[] = "\t\t\$aSql[] = \"INSERT INTO\";";
+        $aOutput[] = "\t\t\$aSql[] = \"`{$this->getTable()->name}`\";";
+        $aOutput[] = "\t\t\$aSql[] = \"($fields)\";";
+        $aOutput[] = "\t\t\$aSql[] = \"VALUES\";";
+        $aOutput[] = "\t\t\$aSql[] = \"($values)\";";
+
+        $aOutput[] = "\t\t\$statement = \$this->getDbManager->prepare(implode(\" \",\$aSql));";
+
+        foreach ($aFields as $variable => $field) {
+        	if ($field == "uuid") {
+        		$aOutput[] = "\t\t\$statement->bindParam(\":{$field}\",\$sUuid);";
+        	} else {
+        		$aOutput[] = "\t\t\$statement->bindParam(\":{$field}\",\$this->_".$variable.");";
+        	}
+        }
+
+        $aOutput[] = "\t\t\$statement->execute();";
+
+        $aOutput[] = <<<EOF
+
+		if (!\$id = \$this->getDbManager()->lastInsertId('id')) {
+			return false;
+		} else {
+			\$this->setId(\$id);
+			\$this->setIsNew(false);
+			\$this->setIsDirty(false);
+			if (property_exists(\$this, '_Uuid')) \$this->setUuid(\$sUuid);
+
+			{$childEngineClassName}::save(\$this->{$childObjectName});
+
+			return \$this;
+		}
+	}
+
+
+	public function update() {
+
+		if (MEMCACHE_ENABLED) CMemcache::delete("object_{$templateVariable}_".md5(\$this->getId()));
+
+		\$aNullValues = array();
+EOF;
+
+		foreach ($this->getTable()->getColumns() as $column) {
+			switch ($column->name) {
+				default:
+					if (!$column->nullable) {
+						switch ($column->type) {
+							case "int": case "bigint":
+								$aOutput[] = "\t\tif (!is_int(\$this->get{$this->toProperName($column->name)}())) {";
+								break;
+							case "tinyint":
+								$aOutput[] = "\t\tif (!(\$this->get{$this->toProperName($column->name)}() == true || \$this->get{$this->toProperName($column->name)}() == false)) {";		
+								break;
+							case "datetime":
+								$aOutput[] = "\t\tif (!CValidation::isValidDatetime(\$this->get{$this->toProperName($column->name)}())) {";
+								break;
+							default:
+								$aOutput[] = "\t\tif (strlen(\$this->get{$this->toProperName($column->name)}()) < 1) {";		
+								break;
+						}
+						
+						$sLabel = $this->getFormatter($column->name)->replace("_"," ")->toTitle()->toString();
+
+						$aOutput[] = "\t\t\t\$aNullValues[] = \"{$sLabel}\";";
+						$aOutput[] = "\t\t}";
+					}
+					break;
+			}
+		}
+
+		$aOutput[] = <<<EOF
+
+		if (count(\$aNullValues) > 0) {
+			throw new exception('Insert failed. Null values were provided for the following non-null fields: '.implode(", ",\$sNullFields);
+		}
+EOF;
+		$aFields = array();
+		foreach ($this->getTable()->getColumns() as $column) {
+			switch ($column->name) {
+				case "id": case "ts":
+					break;
+				default:	
+					$key = $this->getFormatter($column->name)->replace("_"," ")->toTitle()->strip(' ')->toString();				
+					$aFields[$key] = $column->name;
+					break;
+			}
+		}
+
+		$fields = "`".implode("`,`",$aFields)."`";
+		$values = "':".implode("',':",$aFields)."'";
+
+        $aOutput[] = "\t\t\$aSql = array();";
+        $aOutput[] = "\t\t\$aSql[] = \"UPDATE\";";
+        $aOutput[] = "\t\t\$aSql[] = \"`{$this->getTable()->name}`\";";
+        $aOutput[] = "\t\t\$aSql[] = \"SET\";";
+
+        foreach ($aFields as $variable => $field) {
+        	$aOutput[] = "\t\t\$aSql[] = \"`$field` = ':$field'\";";
+        }
+        $aOutput[] = "\t\t\$aSql[] = \"WHERE\";";
+        $aOutput[] = "\t\t\$aSql[] = \"`id` = :id\";";
+
+        foreach ($aFields as $key => $value) {
+
+        }
+
+
+        $aOutput[] = "\t\t\$statement = \$this->getDbManager->prepare(implode(\" \",\$aSql));";
+
+        foreach ($aFields as $variable => $field) {
+        	if ($field == "uuid") {
+        		$aOutput[] = "\t\t\$statement->bindParam(\":{$field}\",\$sUuid);";
+        	} else {
+        		$aOutput[] = "\t\t\$statement->bindParam(\":{$field}\",\$this->_".$variable.");";
+        	}
+        }
+
+        $aOutput[] = "\t\t\$statement->bindParam(\":id\",\$this->getId());";
+        $aOutput[] = "\t\t\$statement->execute();";
+
+		$aOutput[] = <<<EOF
+
+		if (!\$this->getDbManager()->run_sql(\$sql)) {
+			return false;
+		} else {
+			{$childEngineClassName}::save(\$this->{$childObjectName});
+			return \$this;
+		}
+	}
+
+
 }
 
 EOF;
@@ -520,8 +697,304 @@ class {$this->toEngineClassName($this->getTable()->name)} {
 	}
 EOF;
 		
-	
+		$tables 	= $this->getTables();
+		if (array_key_exists($typeTable, $tables)) {
+			$table = $tables[$typeTable];
+			foreach ($table->getRows() as $row) {
 
+				$type 				= $this->toProperName($row["type"]);
+
+				$childObjectName 	= "_oc".$templateClass.$type;
+
+				$aOutput[] = <<<EOF
+
+	/*
+	 * new{$templateClass}_{$type}
+	 */
+	static function new{$templateClass}_{$type}() {
+
+			\$o{$templateClass}_{$type} = new {$templateClass}_c{$type};
+			\$o{$templateClass}_{$type}->setIsNew(true);
+			\$o{$templateClass}_{$type}->setDateEntered(time());
+			\$o{$templateClass}_{$type}->setDateModified(time());
+			\$o{$templateClass}_{$type}->setMethodOfContactTypeID({$row["id"]});
+			return \$o{$templateClass}_{$type};
+	}
+
+EOF;
+			}
+		}
+
+		$aOutput[] = <<<EOF
+	/**
+	 * count
+	 */
+	static function count(\$aParams=null, 
+							\$bUseSlave=false) {
+
+	}
+
+	/**
+	 * search
+	 */
+	static function search(\$aParams=null,
+							\$aSortFields=null,
+							\$bBulkLoad=false,
+							\$bUseSlave=false,
+							\$iStart=null,
+							\$iLimit=null)  {
+
+	}
+
+	/**
+	 * countSpecial
+	 */
+	static function countSpecial(\$sSql,
+							\$bUseSlave=false,
+							\$bIsDistinct=false) {
+	}
+
+	/**
+	 * searchSpecial
+	 */
+	static function searchSpecial(\$sSql,
+							\$bUseSlave=false,
+							\$bIsDistinct=false) {
+	}
+
+	/**
+	 * get
+	 */
+	static function get(\$key,
+							\$bBulkLoad=false,
+							\$bUseSlave=false,
+							\$sAlternateTable='',
+							\$sAlternateField='') {
+
+		if (MEMCACHE_ENABLED && \$sAlternateField == "") {
+			\$val = CMemcache::get("object_{$templateVariable}_".md5(\$key));
+			if (\$val) return \$val;
+		}
+
+
+		\$aParams = (\$sAlternateField != "") ? array(array(\$sAlternateTable,\$sAlternateField,"=",\$key)) : array(array("","id","=",\$key));
+		if (!\$col{$templateClassPlural} = {$this->toEngineClassName($this->getTable()->name)}::search(\$aParams, 
+							null, // sort field array
+							\$bBulkLoad, 
+							\$bUseSlave, 
+							0, // start
+							1)) { // limit
+			return false;
+		} else {
+			if (\$col{$templateClassPlural}->count() == 0) return false;
+
+			if (MEMCACHE_ENABLED) CMemcache::set("object_{$templateVariable}_".md5(\$col{$templateClassPlural}->current()->getId()), \$col{$templateClassPlural}->current());
+
+			return \$col{$templateClassPlural}->current();
+		}
+	}
+
+	/**
+	 * save()
+	 */
+	static function save({$templateClass}_Base &\$o{$templateClass}) {
+
+			if (\$o{$templateClass}->getIsNew()) {
+				return \$o{$templateClass}->add();
+				\$o{$templateClass}->setIsNew(false);
+			} elseif (\$o{$templateClass}->getIsDirty()) {
+				return \$o{$templateClass}->update();
+			} else {
+				return true;
+			}
+	}
+
+	/**
+	 * delete()
+	 */
+	static function delete({$templateClass}_Base \$o{$templateClass}) {
+
+			if (!\$o{$templateClass}->getIsNew()) {
+				return \$o{$templateClass}->delete();
+			} else {
+				return true;
+			}
+	}
+
+	/**
+	 * deleteWhere()
+	 */
+	static function deleteWhere(\$aParams) {
+
+			/**
+			 * grab all of the objects matching the criteria
+			 */
+			\$col{$templateClassPlural}ToDelete = {$this->toEngineClassName($this->getTable()->name)}::search(\$aParams,null,true);
+
+			/**
+			 * loop through each item in the collection and delete it
+			 */
+			foreach(\$col{$templateClassPlural}ToDelete as \$o{$templateClass}) {
+				{$this->toEngineClassName($this->getTable()->name)}::delete(\$o{$templateClass});
+			}
+
+			/**
+			 * return
+			 */
+			return true;
+	}
+
+	/**
+	 * loadCollection
+	 */
+	static function loadCollection(\$oRecords,\$bBulkLoad) {
+
+			\$col{$templateClassPlural} = new CCollection();
+			while (\$oRecord = mysql_fetch_array(\$oRecords)) {
+
+				switch (\$oRecord['{$templateClassLower}__{$templateVariable}_type_id']) {					
+EOF;
+				$tables 	= $this->getTables();
+				if (array_key_exists($typeTable, $tables)) {
+					$table = $tables[$typeTable];
+					foreach ($table->getRows() as $row) {
+						$type = $this->toProperName($row["type"]);
+						$aOutput[] = <<<EOF
+					case {$row["id"]}:
+						\$o{$templateClass} = {$this->toEngineClassName($this->getTable()->name)}::new{$templateClass}_{$type}();
+						break;
+EOF;
+					}
+				}
+					$aOutput[] = <<<EOF
+					default:
+						\$o{$templateClass} = {$this->toEngineClassName($this->getTable()->name)}::new{$templateClass}();
+						break;
+				}
+
+				\$o{$templateClass}->setId(CDBManager::DBValue(\$oRecord['{$templateClassLower}__id'],"int"));
+				\$o{$templateClass}->setUuid(CDBManager::DBValue(\$oRecord['{$templateClassLower}__uuid'],"char"));
+				\$o{$templateClass}->setMethodOfContactTypeId(CDBManager::DBValue(\$oRecord['{$templateClassLower}__{$templateVariable}_type_id'],"int"));
+				\$o{$templateClass}->setEntityId(CDBManager::DBValue(\$oRecord['{$templateClassLower}__entity_id'],"int"));
+
+				\$o{$templateClass}->setIsDirty(false);
+				\$o{$templateClass}->setIsNew(false);
+				\$o{$templateClass}->setDateEntered(CDBManager::DBValue(\$oRecord['{$templateClassLower}__date_entered'],"int"));
+				\$o{$templateClass}->setDateModified(CDBManager::DBValue(\$oRecord['{$templateClassLower}__date_modified'],"int"));
+
+				/**
+				 * add in child properties
+				 */
+				if (\$oRecord['methodofcontact__method_of_contact_type_id'] == "1") {
+					if (\$oRecord['address__id'] != null) {
+						\$oTmp = cMethodOfContactAddress_Eng::newcMethodOfContactAddress();
+						\$oTmp->setId(CDBManager::DBValue(\$oRecord['address__id'],"int"));
+						\$oTmp->setMethodOfContactId(CDBManager::DBValue(\$oRecord['address__method_of_contact_id'],"int"));
+						\$oTmp->setRecipientOrganization(CDBManager::DBValue(substr(\$oRecord['address__recipient_organization'],0,100),"varchar"));
+						\$oTmp->setRecipientIndividual(CDBManager::DBValue(substr(\$oRecord['address__recipient_individual'],0,100),"varchar"));
+						\$oTmp->setStreet1(CDBManager::DBValue(substr(\$oRecord['address__street_1'],0,100),"varchar"));
+						\$oTmp->setStreet2(CDBManager::DBValue(substr(\$oRecord['address__street_2'],0,100),"varchar"));
+						\$oTmp->setStreet3(CDBManager::DBValue(substr(\$oRecord['address__street_3'],0,100),"varchar"));
+						\$oTmp->setRegion(CDBManager::DBValue(substr(\$oRecord['address__region'],0,100),"varchar"));
+						\$oTmp->setCountry(CDBManager::DBValue(substr(\$oRecord['address__country'],0,100),"varchar"));
+						\$oTmp->setPostalCode(CDBManager::DBValue(substr(\$oRecord['address__postal_code'],0,20),"varchar"));
+						\$oTmp->setDateEntered(CDBManager::DBValue(\$oRecord['address__date_entered'],"int"));
+						\$oTmp->setDateModified(CDBManager::DBValue(\$oRecord['address__date_modified'],"int"));
+
+						\$oTmp->setIsDirty(0);
+						\$oTmp->setIsNew((\$oRecord['address__method_of_contact_id'] == null) ? true : false);
+						\$o{$templateClass}->_ocMethodOfContactAddress = \$oTmp;
+					}
+				}
+				if (\$oRecord['methodofcontact__method_of_contact_type_id'] == "2") {
+					if (\$oRecord['email__id'] != null) {
+						\$oTmp = cMethodOfContactEmail_Eng::newcMethodOfContactEmail();
+						\$oTmp->setId(CDBManager::DBValue(\$oRecord['email__id'],"int"));
+						\$oTmp->setMethodOfContactId(CDBManager::DBValue(\$oRecord['email__method_of_contact_id'],"int"));
+						\$oTmp->setEmailAddress(CDBManager::DBValue(substr(\$oRecord['email__email_address'],0,255),"varchar"));
+						\$oTmp->setImportStatusId(CDBManager::DBValue(\$oRecord['email__import_status_id'],"int"));
+						\$oTmp->setImportStatusDate(CDBManager::DBValue(\$oRecord['email__import_status_date'],"int"));
+						\$oTmp->setDateEntered(CDBManager::DBValue(\$oRecord['email__date_entered'],"int"));
+						\$oTmp->setDateModified(CDBManager::DBValue(\$oRecord['email__date_modified'],"int"));
+
+						\$oTmp->setIsDirty(0);
+						\$oTmp->setIsNew((\$oRecord['email__method_of_contact_id'] == null) ? true : false);
+						\$o{$templateClass}->_ocMethodOfContactEmail = \$oTmp;
+					}
+				}
+				if (\$oRecord['methodofcontact__method_of_contact_type_id'] == "3") {
+					if (\$oRecord['telephone__id'] != null) {
+						\$oTmp = cMethodOfContactTelephone_Eng::newcMethodOfContactTelephone();
+						\$oTmp->setId(CDBManager::DBValue(\$oRecord['telephone__id'],"int"));
+						\$oTmp->setMethodOfContactId(CDBManager::DBValue(\$oRecord['telephone__method_of_contact_id'],"int"));
+						\$oTmp->setNumber(CDBManager::DBValue(\$oRecord['telephone__number'],"int"));
+						\$oTmp->setCountryCode(CDBManager::DBValue(\$oRecord['telephone__country_code'],"int"));
+						\$oTmp->setDateEntered(CDBManager::DBValue(\$oRecord['telephone__date_entered'],"int"));
+						\$oTmp->setDateModified(CDBManager::DBValue(\$oRecord['telephone__date_modified'],"int"));
+
+						\$oTmp->setIsDirty(0);
+						\$oTmp->setIsNew((\$oRecord['telephone__method_of_contact_id'] == null) ? true : false);
+						\$o{$templateClass}->_ocMethodOfContactTelephone = \$oTmp;
+					}
+				}
+				if (\$oRecord['methodofcontact__method_of_contact_type_id'] == "4") {
+					if (\$oRecord['twitter__id'] != null) {
+						\$oTmp = cMethodOfContactTwitter_Eng::newcMethodOfContactTwitter();
+						\$oTmp->setId(CDBManager::DBValue(\$oRecord['twitter__id'],"int"));
+						\$oTmp->setMethodOfContactId(CDBManager::DBValue(\$oRecord['twitter__method_of_contact_id'],"int"));
+						\$oTmp->setTwitterHandle(CDBManager::DBValue(substr(\$oRecord['twitter__twitter_handle'],0,50),"varchar"));
+						\$oTmp->setDateEntered(CDBManager::DBValue(\$oRecord['twitter__date_entered'],"int"));
+						\$oTmp->setDateModified(CDBManager::DBValue(\$oRecord['twitter__date_modified'],"int"));
+
+						\$oTmp->setIsDirty(0);
+						\$oTmp->setIsNew((\$oRecord['twitter__method_of_contact_id'] == null) ? true : false);
+						\$o{$templateClass}->_ocMethodOfContactTwitter = \$oTmp;
+					}
+				}
+
+				if (\$bBulkLoad) {
+					if (\$oRecord['entity__id'] != null) {
+						if (\$oRecord['entity__entity_type_id'] == 1) {
+
+							\$oTmp = Entity_Eng::newEntity_Person();
+						} elseif (\$oRecord['entity__entity_type_id'] == 2) {
+
+							\$oTmp = Entity_Eng::newEntity_Organization();
+
+						} else {
+							\$oTmp = Entity_Eng::newEntity();
+						}
+						\$oTmp->setId(CDBManager::DBValue(\$oRecord['entity__id'],"int"));
+						\$oTmp->setEntityTypeId(CDBManager::DBValue(\$oRecord['entity__entity_type_id'],"int"));
+						\$oTmp->setUuid(CDBManager::DBValue(\$oRecord['entity__uuid'],"char"));
+						\$oTmp->setAccountId(CDBManager::DBValue(\$oRecord['entity__account_id'],"int"));
+						\$oTmp->setOwnerUserId(CDBManager::DBValue(\$oRecord['entity__owner_user_id'],"int"));
+						\$oTmp->setEnteredByUserId(CDBManager::DBValue(\$oRecord['entity__entered_by_user_id'],"int"));
+						\$oTmp->setModifiedByUserId(CDBManager::DBValue(\$oRecord['entity__modified_by_user_id'],"int"));
+						\$oTmp->setSourceId(CDBManager::DBValue(\$oRecord['entity__source_id'],"int"));
+						\$oTmp->setClassificationId(CDBManager::DBValue(\$oRecord['entity__classification_id'],"int"));
+						\$oTmp->setImportStatusId(CDBManager::DBValue(\$oRecord['entity__import_status_id'],"int"));
+						\$oTmp->setSysTaskCount(CDBManager::DBValue(\$oRecord['entity__sys_task_count'],"int"));
+						\$oTmp->setSysTaskMinDate(CDBManager::DBValue(\$oRecord['entity__sys_task_min_date'],"int"));
+						\$oTmp->setSysDealCount(CDBManager::DBValue(\$oRecord['entity__sys_deal_count'],"int"));
+						\$oTmp->setSysDealTotal(CDBManager::DBValue(\$oRecord['entity__sys_deal_total'],"int"));
+						\$oTmp->setDateEntered(CDBManager::DBValue(\$oRecord['entity__date_entered'],"int"));
+						\$oTmp->setDateModified(CDBManager::DBValue(\$oRecord['entity__date_modified'],"int"));
+
+						\$oTmp->setIsDirty(0);
+						\$oTmp->setIsNew((\$oRecord['methodofcontact__entity_id'] == null) ? true : false);
+						\$o{$templateClass}->_oEntity = \$oTmp;
+
+
+					}
+
+				}
+				\$col{$templateClassPlural}->add(\$o{$templateClass});
+			}
+			return \$col{$templateClassPlural};
+	}
+
+EOF;
 		$aOutput[] = <<<EOF
 }
 ?>
@@ -584,9 +1057,13 @@ EOF;
 	 * @param $column dclaysmith\Generator\Database\Column
 	 * @return string
 	 */
-	private function generateSetters(Column $column)
+	private function generateParentGettersSetters(Column $column)
 	{
-		$columnNameProper = $this->toProperName($column->name);
+		$columnNameProper = $this->getFormatter($column->name)
+									->toTitle()
+									->strip("_")
+									->replace("-","_")
+									->toString();
 
 		$aOutput = array();
 		$aOutput[] = <<<EOF
@@ -653,8 +1130,11 @@ EOF;
 		\$this->_{$columnNameProper} = \$value;
 		return true;
 	}
+
 EOF;
+		return implode("\n",$aOutput);
 	}
+
 
 }
 ?>
