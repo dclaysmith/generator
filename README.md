@@ -3,12 +3,24 @@ Generator
 
 WARNING: This is super pre-alpha. Disregard everything.
 
-Generator is a code generation tool. You write templates in PHP but the output can be in any language. It is at its most powerful when given a database schema to read. You can create ORMs, administration interfaces, full CRUD applications.
+Generator is a code generation tool. You write templates in PHP but the output can be in any language. It is at its most powerful when given a database schema to read. You can create ORM layers, administration interfaces, or full CRUD applications.
 
-Download
---------
+Installation
+------------
 
-`curl -sS https://DOMAINOFSITE.COM/installer | php`
+NOTE: Disregard this method, the installer executable is not included in that release. Download `generator.phar` from the most current release. 
+
+`curl -sS https://github.com/dclaysmith/generator/releases/v0.1.0/2645/installer | php`
+
+Usage
+-----
+
+Run Generator:
+
+```
+$ php generator.phar
+```
+
 
 Workflow
 --------
@@ -17,7 +29,7 @@ Generator is very useful when starting a new project. I maintain a bootstrap pro
 
 `git clone https://github.com/dclaysmith/bootstrap.git`
 
-I then run Composer to download any dependencies:
+I then run [Composer](https://getcomposer.org) to download any dependencies:
 
 `composer.phar install`
 
