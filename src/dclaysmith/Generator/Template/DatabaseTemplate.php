@@ -53,7 +53,7 @@ abstract class DatabaseTemplate extends Template
 
 		if (!$this->tables)
 		{
-			throw new exception("Unable to retrieve any tables.");
+			throw new \exception("Unable to retrieve any tables.");
 		}
 
 		return $this->tables;
