@@ -132,9 +132,10 @@ class Formatter
 		$last 	= "";
 		$new 	= "";
 		$string = strtoupper($string);
-		while ($i<$len) {
+		while ($i<$len) 
+		{
 			$char=substr($string,$i,1);
-			if (ereg( "[A-Z]",$last)) 
+			if (preg_match("/[A-Z]/i",$last)) 
 			{
 				$new.=strtolower($char);
 			} 
@@ -164,7 +165,7 @@ class Formatter
 		while ($i<$len) 
 		{
 			$char=substr($string,$i,1);
-			if (preg_match( "[A-Z]", $last )) 
+			if (preg_match("/[A-Z]/i", $last )) 
 			{
 				$new.=strtolower($char);
 			}
