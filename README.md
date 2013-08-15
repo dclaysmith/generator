@@ -3,8 +3,8 @@ Generator
 
 [!["Travis CI Build Status"][2]][1]
 
-  1: https://travis-ci.org/dclaysmith/generator
-  2: https://api.travis-ci.org/dclaysmith/generator.png
+  [1]: https://travis-ci.org/dclaysmith/generator
+  [2]: https://api.travis-ci.org/dclaysmith/generator.png
 
 Generator is a code generation tool written in PHP. You write templates in PHP but the output can be in any language you desire. You can create ORM layers, administration interfaces, or full CRUD applications.
 
