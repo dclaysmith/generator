@@ -21,40 +21,40 @@ use dclaysmith\Generator\Formatter;
  *
  * @author D Clay Smith <dclaysmith@gmail.com>
  */
-class Generator 
+class Generator
 {
 
     /**
      * @var boolean
      */
-    private $debug;
+    private $_debug;
 
     /**
      * @var array
      */
-    private $connections;
+    private $_connections;
 
     /**
      * @var array
      */
-    private $templates;
+    private $_templates;
 
     /**
      * @var dclaysmith\Generator\Formatter
      */
-    private $formatter;
+    private $_formatter;
 
     /**
      * @var string
      */
-    private $templateDirectory;
+    private $_templateDirectory;
 
     /**
      * @return dclaysmith\Generator\Formatter
      */
     private function getFormatter()
     {
-        return $this->formatter;
+        return $this->_formatter;
     }
 
     /**
@@ -62,7 +62,7 @@ class Generator
      */
     private function getTemplates()
     {
-        return $this->templates;
+        return $this->_templates;
     }
 
     /**
@@ -78,7 +78,8 @@ class Generator
      */
     private function getConnection($name) 
     {
-        return ($this->connections[$name]) ? $this->connections[$name] : false;
+        return ($this->_connections[$name]) ? 
+                    $this->_connections[$name] : false;
     }
 
     /**
@@ -86,7 +87,7 @@ class Generator
      */
     private function getTemplateDirectory()
     {
-        return $this->templateDirectory;
+        return $this->_templateDirectory;
     }
 
     /**
@@ -97,39 +98,39 @@ class Generator
 
         $config = json_decode($config);
 
-        if (json_last_error() != "") die("Error decoding JSON. Error code: ".json_last_error());
+        if (json_last_error() != "") {
+            die("Error decoding JSON. Error code: ".json_last_error());
+        }
 
         $this->validateConfig($config);
 
         // debug
-        $this->debug                = $config->debug;
+        $this->_debug                = $config->debug;
 
         // templateDirectory
-        $this->templateDirectory    = $config->templateDirectory;
+        $this->_templateDirectory    = $config->templateDirectory;
 
         // connections
-        $this->connections = array();
-        foreach ($config->connections as $connection) 
-        {
-            if ($connection->type == "mysql") 
-            {
-                $this->connections[$connection->name] = new MySql(
-                                                            $connection->host,
-                                                            $connection->user,
-                                                            $connection->password,
-                                                            $connection->database);
+        $this->_connections = array();
+        foreach ($config->connections as $connection) {
+            if ($connection->type == "mysql") {
+                $this->_connections[$connection->name] = new MySql(
+                    $connection->host,
+                    $connection->user,
+                    $connection->password,
+                    $connection->database
+                );
             }         
         }
 
         // templates
-        $this->templates = array();
-        foreach ($config->templates as $template) 
-        {
-            $this->templates[] = $template;
+        $this->_templates = array();
+        foreach ($config->templates as $template) {
+            $this->_templates[] = $template;
         }
 
         // formatter
-        $this->formatter = new Formatter((array) $config->pluralForms);
+        $this->_formatter = new Formatter((array) $config->pluralForms);
     }
 
     /**
@@ -137,8 +138,7 @@ class Generator
      */
     public function run() 
     {
-        foreach ($this->getTemplates() as $templateConfig)
-        {
+        foreach ($this->getTemplates() as $templateConfig) {
             $this->processTemplate($templateConfig);
         }
     }
@@ -149,59 +149,57 @@ class Generator
     private function processTemplate($templateConfig) 
     {
         // include the template file
-        $templatePath           = $this->getTemplateDirectory()     .
-                                            DIRECTORY_SEPARATOR     .
-                                            $templateConfig->name   .
-                                            ".php";     
+        $templatePath = $this->getTemplateDirectory() .
+                            DIRECTORY_SEPARATOR .
+                            $templateConfig->name .
+                            ".php";     
 
         require_once($templatePath);
 
         // create an instance of the template
-        $className              = "dclaysmith\\Generator\\Template\\".$templateConfig->name;   
+        $className = "dclaysmith\\Generator\\Template\\".$templateConfig->name; 
 
-        if ($templateConfig->repeat == "table") 
-        {
+        if ($templateConfig->repeat == "table") {
             // retrieve the connections specified for this template
             $connection = $this->getConnection($templateConfig->connection);
 
             // loop through the tables for this connection
-            foreach ($connection->getTables() as $table) 
-            {
+            foreach ($connection->getTables() as $table) {
 
                 // create an instance of the Template
-                $template           = new $className(
+                $template = new $className(
                                             $this->getFormatter(),
                                             $connection,
-                                            $table                                            
+                                            $table
                                         );
 
                 // if the output is blank, skip it
-                if (!$output = $template->generate()) 
-                {
+                if (!$output = $template->generate()) {
                     continue;
                 }
 
-                $destination        = $templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$template->formatFilename();
+                $destination = $templateConfig->outputDirectory .
+                                    DIRECTORY_SEPARATOR .
+                                    $template->formatFilename();
 
                 $this->write($destination, $output, $templateConfig->overwrite);
 
                 echo ". ".$template->formatFilename()."\n";
             }
-        } 
-        else 
-        {
+        } else {
             // create an instance of the Template
             $template               = new $className(
                                         $this->getFormatter(),
-                                        $connection                                     
+                                        $connection
                                     );         
 
-            if (!$output = $template->generate())
-            {
+            if (!$output = $template->generate()) {
                 continue;  
             } 
             
-            $destination        = $templateConfig->outputDirectory.DIRECTORY_SEPARATOR.$template->formatFilename();
+            $destination = $templateConfig->outputDirectory .
+                            DIRECTORY_SEPARATOR .
+                            $template->formatFilename();
             
             $this->write($destination, $output, $templateConfig->overwrite);
 
@@ -224,14 +222,14 @@ class Generator
      */
     private function write($destination, $output, $overwrite = false)
     {
-        if (file_exists($destination) && !$overwrite)
-        {
+        if (file_exists($destination) && !$overwrite) {
             return;
         }
 
-        $handle = (file_exists($destination)) ? fopen($destination, "w+") : fopen($destination, "x+");
+        $handle = (file_exists($destination)) ?
+                    fopen($destination, "w+") : fopen($destination, "x+");
+
         fwrite($handle, $output);
         fclose($handle);
     }
 }
-?>
