@@ -1,0 +1,9 @@
+Local Notes
+
+To run from source:
+
+php ~/Projects/Generator/source/run.php
+
+To compile the phar:
+
+/Users/dclaysmith/Projects/Generator/source $ php build.php
