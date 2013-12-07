@@ -6,7 +6,7 @@ Generator - Very Pre-Alpha Proceed with Caution
   [1]: https://travis-ci.org/dclaysmith/generator
   [2]: https://api.travis-ci.org/dclaysmith/generator.png
 
-[Codeship CI Status](https://www.codeship.io/projects/7ffe7a70-418f-0131-286b-0a3efd36b955/status "Codeship CI Status")
+![Codeship CI Status](https://www.codeship.io/projects/7ffe7a70-418f-0131-286b-0a3efd36b955/status "Codeship CI Status")
 
 Generator is a code generation tool written in PHP. You write templates in PHP but the output can be in any language you desire. You can create ORM layers, administration interfaces, or full CRUD applications.
 
