@@ -6,6 +6,10 @@ Generator
   [1]: https://travis-ci.org/dclaysmith/generator
   [2]: https://api.travis-ci.org/dclaysmith/generator.png
 
+[!["Codeship CI Build Status"][1]
+
+  [1]: https://www.codeship.io/projects/7ffe7a70-418f-0131-286b-0a3efd36b955/status
+
 Generator is a code generation tool written in PHP. You write templates in PHP but the output can be in any language you desire. You can create ORM layers, administration interfaces, or full CRUD applications.
 
 Generator currently supports MySql but in time should support a number of different relational datasources.
